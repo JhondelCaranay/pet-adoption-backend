@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum ROLE {
+  ADMIN
+  USER
+}
+
+enum PET_STATUS {
+  AVAILABLE
+  PENDING
+  ADOPTED
+}
+
+enum ADOPTION_STATUS {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email              String  @unique
+  hash               String
+  hashedRefreshToken String?
+  hashedPWResetToken String?
+
+  role    ROLE     @default(USER)
+  profile Profile?
+
+  // one to many relationship with model Pet
+  pet Pet[] // owner can have many pets
+
+  // one to one relationship with model Adoption
+  adoption Adoption[]
+
+  @@map("users")
+}
+
+model Profile {
+  id Int @id @default(autoincrement())
+
+  fist_name String
+  last_name String
+  contact   String?
+  address   String?
+  imageUrl  String?
+  gender    String?
+  age       Int?
+
+  // one to one relationship with model User
+  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId Int?  @unique
+
+  @@map("profiles")
+}
+
+model Pet {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name      String
+  breed     String
+  condition Int
+  type      String
+  age       Int?
+  gender    String?
+  traits    String?
+  details   String?
+  imageUrl  String?
+
+  status PET_STATUS @default(AVAILABLE)
+
+  // one to one relationship with model User
+  owner    User?     @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  ownerId  Int?
+  // one to one relationship with model Adoption
+  adoption Adoption?
+
+  @@map("pets")
+}
+
+model Adoption {
+  id Int @id @default(autoincrement())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  schedule  DateTime
+
+  status ADOPTION_STATUS @default(PENDING)
+
+  adopter   User? @relation(fields: [adopterId], references: [id], onDelete: SetNull)
+  adopterId Int?
+
+  adoptee   Pet? @relation(fields: [adopteeId], references: [id], onDelete: SetNull)
+  adopteeId Int? @unique
+
+  @@map("adoptions")
+}
