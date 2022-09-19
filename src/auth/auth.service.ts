@@ -23,6 +23,7 @@ export class AuthService {
   async signup(dto: AuthDto): Promise<Tokens> {
     //hash password
     const hash = await this.hashData(dto.password);
+
     // create user
     const newUser = await this.prisma.user.create({
       data: {
@@ -36,7 +37,8 @@ export class AuthService {
     // return newUser;
 
     // generate access token and refresh token
-    const getTokens = this.getTokens(newUser.id, newUser.email);
+    const getTokens = this.getTokens(newUser.id, newUser.email, newUser.role);
+
     // update user hashed refresh token
     await this.updateRtHash(newUser.id, getTokens.refresh_token);
 
@@ -53,7 +55,7 @@ export class AuthService {
 
     // check if user not exist
     if (!user) {
-      throw new ForbiddenException('Access denied');
+      throw new ForbiddenException('Invalid credentials');
     }
 
     // compare password and hashed password
@@ -61,11 +63,12 @@ export class AuthService {
 
     // check if not match
     if (!isMatch) {
-      throw new ForbiddenException('Access denied');
+      throw new ForbiddenException('Invalid credentials');
     }
 
     // generate access token and refresh token
-    const getTokens = this.getTokens(user.id, user.email);
+    const getTokens = this.getTokens(user.id, user.email, user.role);
+
     // update user hashed refresh token
     await this.updateRtHash(user.id, getTokens.refresh_token);
 
@@ -85,6 +88,7 @@ export class AuthService {
         hashedRefreshToken: null,
       },
     });
+
     return true;
   }
 
@@ -110,7 +114,8 @@ export class AuthService {
     }
 
     // generate new access token and refresh token
-    const getTokens = this.getTokens(user.id, user.email);
+    const getTokens = this.getTokens(user.id, user.email, user.role);
+
     // update user hashed refresh token
     await this.updateRtHash(user.id, getTokens.refresh_token);
 
@@ -124,12 +129,13 @@ export class AuthService {
     return await bcrypt.hash(data, salt);
   }
 
-  getTokens(userId: number, email: string) {
+  getTokens(userId: number, email: string, role: string) {
     // generate access token
     const access_token = this.jwtService.sign(
       {
         sub: userId,
         email,
+        role,
       },
       {
         expiresIn: '15m',
@@ -142,6 +148,7 @@ export class AuthService {
       {
         sub: userId,
         email,
+        role,
       },
       {
         expiresIn: '7d',

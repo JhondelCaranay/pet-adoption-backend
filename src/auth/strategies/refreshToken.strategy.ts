@@ -27,7 +27,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
     payload: JwtPayload,
   ): Promise<JwtPayloadWithRefreshToken> {
     const refreshToken = req.headers.authorization.split(' ')[1];
-    console.log({ payload, refreshToken });
+    console.log('REFRESH TOKEN STRATEGY ', { payload, refreshToken });
     return {
       ...payload,
       refreshToken,

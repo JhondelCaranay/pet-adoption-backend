@@ -1,0 +1,52 @@
+PRISMA
+https://www.prisma.io/docs/reference/api-reference/command-reference
+
+RELATION SHIP
+https://www.prisma.io/docs/concepts/components/prisma-schema/relations
+
+
+> npm install prisma
+> npm install @prisma/client
+> npx prisma init  /  npx prisma init --datasource-provider sqlite
+
+> npx prisma migrate dev
+> npx prisma studio                     -- dev tools
+
+// migrate eveytime you change schema
+
+Customizing migrations
+> npx prisma migrate dev --create-only 
+> npx prisma db push                       + --accept-data-loss
+
+MYSQL COMMAND LINE
+https://gist.github.com/hofmannsven/9164408
+
+> show databases;           -- show list of databases
+> create database nest_jwt; -- create new database
+> use nest_jwt;             -- use database
+> show tables;              -- show tables of selected database
+> DROP DATABASE dbname;
+
+
+GENERATE / SCAFOLD TEMPLATE
+
+> nest                                          -- show command help
+> nest g mo prisma                              -- make module
+> nest g co auth --no-spec                      -- make controller w/o test file
+> nest g s auth --no-spec                       -- name service w/o test file
+
+
+> VALIDATION / DTO
+
+> npm i class-validator class-transformer
+
+
+HASHING
+> npm i bcrypt @types/bcrypt
+
+
+NEST JS WEBTOKEN
+> npm i --save @nestjs/passport passport passport-local
+> npm i --save-dev @types/passport-local
+> npm i --save @nestjs/jwt passport-jwt
+> npm i --save-dev @types/passport-jwt

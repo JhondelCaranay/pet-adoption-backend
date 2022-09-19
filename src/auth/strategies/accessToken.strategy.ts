@@ -13,7 +13,8 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
   async validate(payload: JwtPayload) {
-    console.log(payload);
+    console.log('ACCESS TOKEN STRATEGY ', { payload });
+
     // payload is a decoded data from token
     return payload; // this will be stored in req.user
   }

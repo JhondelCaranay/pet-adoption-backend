@@ -1,7 +1,5 @@
-import { RefreshTokenGuard } from './../common/guards/refreshToken.guard';
-import { AccessTokenGuard } from './../common/guards/accessToken.guard';
-import { AuthRegisterDto } from './dto/auth.dto';
-import { AuthDto } from './dto';
+import { RefreshTokenGuard } from './../common/guards';
+import { AuthDto, AuthRegisterDto } from './dto';
 import { AuthService } from './auth.service';
 import {
   Controller,
@@ -10,38 +8,39 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { Tokens } from './types';
-// import { Request } from 'express';
 import {
   GetCurrentUser,
   GetCurrentUserID,
   Public,
+  Roles,
 } from 'src/common/decorators';
+// import { AccessTokenGuard } from './../common/guards/accessToken.guard';
+// import { Request } from 'express';
 // import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Public()
-  @Post('signup') // register
+  @Public() // @Public() a custom decorator used to skip authentication
+  @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   signup(@Body() dto: AuthRegisterDto): Promise<Tokens> {
     return this.authService.signup(dto);
   }
 
-  @Public()
-  @Post('signin') // login
-  @HttpCode(HttpStatus.OK)
+  @Public() // @Public() a custom decorator used to skip authentication
+  @Post('signin')
+  @HttpCode(HttpStatus.OK) // by default post request will return 201 Created status code, but we want to return 200 OK status code
   signin(@Body() dto: AuthDto): Promise<Tokens> {
     return this.authService.signin(dto);
   }
 
-  // @UseGuards(AccessTokenGuard) // old @UseGuards(AuthGuard('jwt'))
-  @Post('signout') // logout
-  @HttpCode(HttpStatus.OK)
+  // old version @UseGuards(AccessTokenGuard) // old version @UseGuards(AuthGuard('jwt'))
+  @Post('signout')
+  @HttpCode(HttpStatus.OK) // by default post request will return 201 Created status code, but we want to return 200 OK status code
   signout(@GetCurrentUserID() userId: number): Promise<boolean> {
     return this.authService.signout(userId);
 
@@ -51,18 +50,26 @@ export class AuthController {
   }
 
   @Public()
-  @UseGuards(RefreshTokenGuard) // old @UseGuards(AuthGuard('jwt-refresh'))
-  @Post('refresh') // refresh token
-  @HttpCode(HttpStatus.OK)
+  @UseGuards(RefreshTokenGuard) // old version @UseGuards(AuthGuard('jwt-refresh'))
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK) // by default post request will return 201 Created status code, but we want to return 200 OK status code
   refresh(
     @GetCurrentUserID() userId: number,
     @GetCurrentUser('refreshToken') refreshToken: string,
   ): Promise<Tokens> {
     return this.authService.refresh(userId, refreshToken);
 
-    // old
+    // old version
     // const userId = req.user['sub'];
     // const refreshToken = req.user['refreshToken'];
     // return this.authService.refresh(userId, refreshToken);
+  }
+
+  // testing role base authorization. status working
+  @Post('create')
+  @Roles('ADMIN') // roles is a custom decorator used to check if user has a role of admin
+  @HttpCode(HttpStatus.CREATED)
+  createUser(@Body() dto: AuthRegisterDto) {
+    return 'create user';
   }
 }
