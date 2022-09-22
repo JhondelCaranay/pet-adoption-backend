@@ -6,10 +6,12 @@ import * as bcrypt from 'bcrypt';
 import * as randomize from 'randomatic';
 import { JwtService } from '@nestjs/jwt/dist';
 import * as nodemailer from 'nodemailer';
+import * as Vonage from '@vonage/server-sdk';
 import { Tokens } from './utils/types';
 @Injectable()
 export class AuthService {
   // JwtService come from JwtModule.register({})
+
   constructor(private prisma: PrismaService, private jwtService: JwtService) {}
 
   async signup(dto: AuthRegisterDto): Promise<Tokens> {
@@ -130,11 +132,14 @@ export class AuthService {
       where: {
         email: dto.email,
       },
+      include: {
+        profile: true,
+      },
     });
 
     // check if user not exist
     if (!user) {
-      throw new ForbiddenException('Invalid email');
+      throw new ForbiddenException('Invalid credentials');
     }
 
     // generate random code
@@ -156,11 +161,11 @@ export class AuthService {
       await this.sendToSMTP(dto.email, code);
     } else if (dto.type === 'phone') {
       // vonage
+      await this.sendToSMS(user.profile.contact, code);
     }
 
     return {
-      message:
-        'We sent to your email a link to reset your password. Please check your email',
+      message: `We sent a code to your ${dto.type} to reset your password. Please check your ${dto.type}.`,
     };
   }
 
@@ -192,7 +197,37 @@ export class AuthService {
     });
   }
 
-  async sendToSMS(phone: string, code: string) {}
+  async sendToSMS(phone: string, code: string) {
+    console.log('DEBUG 1');
+    // @ts-ignore
+    const vonage = new Vonage({
+      apiKey: process.env.VONAGE_API_KEY,
+      apiSecret: process.env.VONAGE_API_SECRET,
+    });
+
+    console.log('DEBUG 2');
+    const from: string = 'Vonage APIs';
+    if (phone.startsWith('0')) {
+      phone = `63${phone.substring(1)}`;
+    }
+    const to: string = phone;
+    const text: string = `Use this code to reset your password. CODE : ${code}\n`;
+
+    vonage.message.sendSms(from, to, text, {}, (err, responseData) => {
+      if (err) {
+        console.log(err);
+      } else {
+        if (responseData.messages[0]['status'] === '0') {
+          console.log('Message sent successfully.');
+        } else {
+          console.log(
+            `Message failed with error: ${responseData.messages[0]['error-text']}`,
+          );
+          throw new ForbiddenException('Failed to send message.');
+        }
+      }
+    });
+  }
 
   async passwordReset(dto: PasswordResetDto) {
     // find user by email
