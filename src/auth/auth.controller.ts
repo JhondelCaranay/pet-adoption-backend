@@ -1,5 +1,10 @@
 import { RefreshTokenGuard } from './../common/guards';
-import { AuthDto, AuthRegisterDto, EmailDto, PasswordResetDto } from './dto';
+import {
+  AuthDto,
+  AuthRegisterDto,
+  ForgotPasswordDto,
+  PasswordResetDto,
+} from './dto';
 import { AuthService } from './auth.service';
 import {
   Controller,
@@ -9,13 +14,13 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
-import { Tokens } from './types';
 import {
   GetCurrentUser,
   GetCurrentUserID,
   Public,
   Roles,
 } from 'src/common/decorators';
+import { Tokens } from './utils/types';
 // import { AccessTokenGuard } from './../common/guards/accessToken.guard';
 // import { Request } from 'express';
 // import { AuthGuard } from '@nestjs/passport';
@@ -68,7 +73,7 @@ export class AuthController {
   @Public()
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK) // by default post request will return 201 Created status code, but we want to return 200 OK status code
-  forgotPassword(@Body() dto: EmailDto) {
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.authService.forgotPassword(dto);
   }
 

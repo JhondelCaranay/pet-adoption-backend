@@ -1,11 +1,12 @@
 import { AuthRegisterDto } from './dto/auth-register.dto';
-import { AuthDto, EmailDto, PasswordResetDto } from './dto';
+import { AuthDto, ForgotPasswordDto, PasswordResetDto } from './dto';
 import { PrismaService } from './../prisma/prisma.service';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { Tokens } from './types';
+import * as randomize from 'randomatic';
 import { JwtService } from '@nestjs/jwt/dist';
 import * as nodemailer from 'nodemailer';
+import { Tokens } from './utils/types';
 @Injectable()
 export class AuthService {
   // JwtService come from JwtModule.register({})
@@ -123,7 +124,7 @@ export class AuthService {
     return getTokens;
   }
 
-  async forgotPassword(dto: EmailDto) {
+  async forgotPassword(dto: ForgotPasswordDto) {
     // find user by email
     const user = await this.prisma.user.findUnique({
       where: {
@@ -135,19 +136,35 @@ export class AuthService {
     if (!user) {
       throw new ForbiddenException('Invalid email');
     }
-    // generate password reset token
-    const password_reset_token = await this.getPasswordResetToken(user.email);
-    const hash_password_reset_token = await this.hashData(password_reset_token);
-    // update user password reset token
+
+    // generate random code
+    const code = randomize('aA0', 8);
+    // store hash of generated random code in database
+    const hash_password_reset = await this.hashData(code);
     await this.prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
-        hashedPWResetToken: hash_password_reset_token,
+        hashedPWResetToken: hash_password_reset,
       },
     });
-    console.log(user);
+
+    // check if type is email or phone
+    if (dto.type === 'email') {
+      // nodemailer
+      await this.sendToSMTP(dto.email, code);
+    } else if (dto.type === 'phone') {
+      // vonage
+    }
+
+    return {
+      message:
+        'We sent to your email a link to reset your password. Please check your email',
+    };
+  }
+
+  async sendToSMTP(email: string, code: string) {
     // node mailer
     let transporter = await nodemailer.createTransport({
       service: 'gmail',
@@ -160,10 +177,10 @@ export class AuthService {
     //CLIENT_APP
     let mailOptions = {
       from: `"<${process.env.GMAIL_EMAIL}>`, // sender address
-      to: `${dto.email}`, // ["@gmail.com","@gmail.com"] list of receivers
+      to: `${email}`, // ["@gmail.com","@gmail.com"] list of receivers
       subject: 'Password Reset', // Subject line
       text: 'Password Reset', // plain text body
-      html: `<div><b>Plase click the link below to reset your password</b><br><a href="${process.env.CLIENT_APP}reset-password?token=${password_reset_token}">Reset Password</a></div>`, // html body
+      html: `<div><b>Use this code to reset your password</b><br><p>code : ${code}</p></div>`, // html body
     };
     // send mail with defined transport object
     transporter.sendMail(mailOptions, function (error, info) {
@@ -173,65 +190,47 @@ export class AuthService {
         console.log('Email sent: ' + info.response);
       }
     });
-
-    return {
-      message:
-        'We sent to your email a link to reset your password. Please check your email',
-    };
   }
 
+  async sendToSMS(phone: string, code: string) {}
+
   async passwordReset(dto: PasswordResetDto) {
-    // decode token
-    // process.env.PASSWORD_RESET_TOKEN_SECRET,
-    try {
-      const decodedToken = await this.jwtService.verifyAsync(
-        dto.password_reset_token,
-        {
-          secret: process.env.PASSWORD_RESET_TOKEN_SECRET,
-        },
-      );
+    // find user by email
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: dto.email,
+      },
+    });
 
-      // find user by email
-      const user = await this.prisma.user.findUnique({
-        where: {
-          email: decodedToken.email,
-        },
-      });
-
-      // check if user not exist
-      if (!user) {
-        throw new ForbiddenException('Invalid token');
-      }
-
-      // compare password reset token and hashed password reset token
-      const isMatch = await bcrypt.compare(
-        dto.password_reset_token,
-        user.hashedPWResetToken,
-      );
-
-      // check if not match
-      if (!isMatch) {
-        throw new ForbiddenException('Invalid token');
-      }
-
-      // hash password
-      const hash = await this.hashData(dto.new_password);
-
-      // update user password
-      await this.prisma.user.update({
-        where: {
-          id: user.id,
-        },
-        data: {
-          hash,
-          hashedPWResetToken: null,
-        },
-      });
-
-      return { message: 'Password reset successfully' };
-    } catch (error) {
-      throw new ForbiddenException('Invalid token');
+    // check if user not exist
+    if (!user) {
+      throw new ForbiddenException('Invalid Credentials');
     }
+
+    // compare password reset token and hashed password reset token
+    const isMatch = await bcrypt.compare(dto.code, user.hashedPWResetToken);
+    console.log(isMatch);
+
+    // check if not match
+    if (!isMatch) {
+      throw new ForbiddenException('Invalid Credentials');
+    }
+
+    // hash new password
+    const hash = await this.hashData(dto.new_password);
+
+    // update user password
+    await this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        hash,
+        hashedPWResetToken: null,
+      },
+    });
+
+    return { message: 'Password reset successfully' };
   }
 
   async updateRtHash(userId: number, refreshToken: string) {
