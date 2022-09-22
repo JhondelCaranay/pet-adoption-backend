@@ -3,8 +3,10 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard, RolesGuard } from './common/guards';
+import { PetModule } from './pet/pet.module';
+import { AdoptionModule } from './adoption/adoption.module';
 @Module({
-  imports: [PrismaModule, AuthModule],
+  imports: [PrismaModule, AuthModule, PetModule, AdoptionModule],
   controllers: [],
   providers: [
     {

@@ -1,5 +1,5 @@
 import { RefreshTokenGuard } from './../common/guards';
-import { AuthDto, AuthRegisterDto } from './dto';
+import { AuthDto, AuthRegisterDto, EmailDto, PasswordResetDto } from './dto';
 import { AuthService } from './auth.service';
 import {
   Controller,
@@ -63,6 +63,20 @@ export class AuthController {
     // const userId = req.user['sub'];
     // const refreshToken = req.user['refreshToken'];
     // return this.authService.refresh(userId, refreshToken);
+  }
+
+  @Public()
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK) // by default post request will return 201 Created status code, but we want to return 200 OK status code
+  forgotPassword(@Body() dto: EmailDto) {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Public()
+  @Post('password-reset')
+  @HttpCode(HttpStatus.OK) // by default post request will return 201 Created status code, but we want to return 200 OK status code
+  resetPassword(@Body() dto: PasswordResetDto) {
+    return this.authService.passwordReset(dto);
   }
 
   // testing role base authorization. status working
