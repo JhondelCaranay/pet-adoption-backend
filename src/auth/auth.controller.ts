@@ -13,6 +13,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Get,
 } from '@nestjs/common';
 import {
   GetCurrentUser,
@@ -82,6 +83,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK) // by default post request will return 201 Created status code, but we want to return 200 OK status code
   resetPassword(@Body() dto: PasswordResetDto) {
     return this.authService.passwordReset(dto);
+  }
+
+  @Get('me')
+  getMe(@GetCurrentUserID() userId: number) {
+    return this.authService.getMe(userId);
   }
 
   // testing role base authorization. status working

@@ -15,6 +15,18 @@ export class AuthService {
   constructor(private prisma: PrismaService, private jwtService: JwtService) {}
 
   async signup(dto: AuthRegisterDto): Promise<Tokens> {
+    // if email exist
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: dto.email,
+      },
+    });
+
+    // check if user exist
+    if (user) {
+      throw new ForbiddenException('Email already exist');
+    }
+
     //hash password
     const hash = await this.hashData(dto.password);
 
@@ -331,5 +343,27 @@ export class AuthService {
       },
     );
     return password_reset_token;
+  }
+
+  async getMe(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        profile: {
+          select: {
+            fist_name: true,
+            last_name: true,
+            imageUrl: true,
+          },
+        },
+      },
+    });
+
+    return user;
   }
 }
