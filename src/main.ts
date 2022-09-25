@@ -4,8 +4,17 @@ import { AppModule } from './app.module';
 import { AccessTokenGuard } from './common/guards';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
+  const app = await NestFactory.create(AppModule, {
+    cors: {
+      origin: "*",
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+    }
+  });
+  // just needed to set Cors policy...
+  app.enableCors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  });
   app.useGlobalPipes(
     // ValidationPipe is used to validate data . For example, if we have a DTO class, then we can use ValidationPipe to validate the data.
     // validation can be used in global scope or in controller scope.
