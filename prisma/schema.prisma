@@ -83,7 +83,6 @@ model Pet {
   imageUrl  String?
 
   status PET_STATUS @default(AVAILABLE)
-
   // one to one relationship with model User
   owner    User?     @relation(fields: [ownerId], references: [id], onDelete: SetNull)
   ownerId  Int?
