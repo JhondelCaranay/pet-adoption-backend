@@ -27,6 +27,10 @@ async function bootstrap() {
   // const reflector = new Reflector();
   // app.useGlobalGuards(new AccessTokenGuard(reflector));
   // guard for all routes, guard can be use globally, controller level , and route level
-  await app.listen(3000);
+
+  // i just update this to separate a port
+  // 3000 is already using by react
+  app.setGlobalPrefix('api');
+  await app.listen(3001);
 }
 bootstrap();

@@ -1,5 +1,5 @@
 import { Match } from './match.decorator';
-import { IsString, IsNotEmpty, IsEmail, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail, IsNumber, IsNumberString } from 'class-validator';
 
 export class AuthRegisterDto {
   @IsNotEmpty({ message: 'Firstname is required' })
@@ -10,6 +10,7 @@ export class AuthRegisterDto {
   last_name: string;
   @IsNotEmpty({ message: 'Contact is required' })
   @IsString({ message: 'Contact must be a string' })
+  @IsNumberString('Contact must be a number')
   contact: string;
   @IsNotEmpty({ message: 'Address is required' })
   @IsString({ message: 'Address must be a string' })
