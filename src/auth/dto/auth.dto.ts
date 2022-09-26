@@ -10,5 +10,3 @@ export class AuthDto {
   @IsString({ message: 'Password must be a string' })
   password: string;
 }
-
-

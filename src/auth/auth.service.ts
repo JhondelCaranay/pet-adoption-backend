@@ -1,18 +1,94 @@
 import { AuthRegisterDto } from './dto/auth-register.dto';
 import { AuthDto, ForgotPasswordDto, PasswordResetDto } from './dto';
 import { PrismaService } from './../prisma/prisma.service';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import * as randomize from 'randomatic';
 import { JwtService } from '@nestjs/jwt/dist';
 import * as nodemailer from 'nodemailer';
 import * as Vonage from '@vonage/server-sdk';
 import { Tokens } from './utils/types';
+// import { hashData } from './utils/functions';
 @Injectable()
 export class AuthService {
   // JwtService come from JwtModule.register({})
 
   constructor(private prisma: PrismaService, private jwtService: JwtService) {}
+
+  async getMe(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        profile: {
+          select: {
+            fist_name: true,
+            last_name: true,
+            imageUrl: true,
+            contact: true,
+            address: true,
+          },
+        },
+      },
+    });
+
+    return user;
+  }
+
+  async getUsers() {
+    const users = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        profile: {
+          select: {
+            fist_name: true,
+            last_name: true,
+            imageUrl: true,
+            contact: true,
+            address: true,
+          },
+        },
+      },
+    });
+
+    return users;
+  }
+
+  getUserById(userId: number) {
+    const user = this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        email: true,
+        profile: {
+          select: {
+            fist_name: true,
+            last_name: true,
+            imageUrl: true,
+            contact: true,
+            address: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
 
   async signup(dto: AuthRegisterDto): Promise<Tokens> {
     // if email exist
@@ -41,8 +117,6 @@ export class AuthService {
             last_name: dto.last_name,
             contact: dto.contact,
             address: dto.address,
-            gender: dto.gender,
-            age: dto.age,
           },
         },
       },
@@ -307,7 +381,7 @@ export class AuthService {
         role,
       },
       {
-        expiresIn: '15m',
+        expiresIn: '1d',
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       },
     );
@@ -343,27 +417,5 @@ export class AuthService {
       },
     );
     return password_reset_token;
-  }
-
-  async getMe(userId: number) {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        profile: {
-          select: {
-            fist_name: true,
-            last_name: true,
-            imageUrl: true,
-          },
-        },
-      },
-    });
-
-    return user;
   }
 }

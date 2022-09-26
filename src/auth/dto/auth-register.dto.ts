@@ -14,19 +14,6 @@ export class AuthRegisterDto {
   @IsNotEmpty({ message: 'Address is required' })
   @IsString({ message: 'Address must be a string' })
   address: string;
-  @IsNotEmpty({ message: 'Gender is required' })
-  @IsString({ message: 'Gender must be a string' })
-  gender: string;
-  @IsNotEmpty({ message: 'Age is required' })
-  @IsNumber(
-    {
-      allowNaN: false,
-      allowInfinity: false,
-      maxDecimalPlaces: 0,
-    },
-    { message: 'Age must be a number' },
-  )
-  age: number;
   @IsNotEmpty({ message: 'Email is required' })
   @IsString({ message: 'Email must be a string' })
   @IsEmail({ message: 'Email is not valid' })
@@ -39,3 +26,16 @@ export class AuthRegisterDto {
   @Match('password', { message: 'Passwords do not match' }) // this is a custom decorator to match password and password confirmation. It is defined in match.decorator.ts. Compare password is still not built in class-validator
   password_confirmation: string;
 }
+
+// @IsString({ message: 'Gender must be a string' })
+// gender: string;
+// @IsNotEmpty({ message: 'Age is required' })
+// @IsNumber(
+//   {
+//     allowNaN: false,
+//     allowInfinity: false,
+//     maxDecimalPlaces: 0,
+//   },
+//   { message: 'Age must be a number' },
+// )
+// age: number;

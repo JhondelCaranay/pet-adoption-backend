@@ -21,8 +21,6 @@ CREATE TABLE `profiles` (
     `contact` VARCHAR(191) NULL,
     `address` VARCHAR(191) NULL,
     `imageUrl` VARCHAR(191) NULL,
-    `gender` VARCHAR(191) NULL,
-    `age` INTEGER NULL,
     `userId` INTEGER NULL,
 
     UNIQUE INDEX `profiles_userId_key`(`userId`),
@@ -41,9 +39,9 @@ CREATE TABLE `pets` (
     `age` INTEGER NULL,
     `gender` VARCHAR(191) NULL,
     `traits` VARCHAR(191) NULL,
-    `details` VARCHAR(191) NULL,
+    `description` VARCHAR(191) NULL,
     `imageUrl` VARCHAR(191) NULL,
-    `status` ENUM('AVAILABLE', 'PENDING', 'ADOPTED') NOT NULL DEFAULT 'AVAILABLE',
+    `status` ENUM('READY', 'PENDING', 'ADOPTED') NOT NULL DEFAULT 'READY',
     `ownerId` INTEGER NULL,
 
     PRIMARY KEY (`id`)
@@ -59,7 +57,6 @@ CREATE TABLE `adoptions` (
     `adopterId` INTEGER NULL,
     `adopteeId` INTEGER NULL,
 
-    UNIQUE INDEX `adoptions_adopteeId_key`(`adopteeId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

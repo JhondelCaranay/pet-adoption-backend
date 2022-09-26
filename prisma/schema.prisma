@@ -16,7 +16,7 @@ enum ROLE {
 }
 
 enum PET_STATUS {
-  AVAILABLE
+  READY
   PENDING
   ADOPTED
 }
@@ -43,7 +43,7 @@ model User {
   // one to many relationship with model Pet
   pet Pet[] // owner can have many pets
 
-  // one to one relationship with model Adoption
+  // one to many relationship with model Adoption
   adoption Adoption[]
 
   @@map("users")
@@ -57,8 +57,6 @@ model Profile {
   contact   String?
   address   String?
   imageUrl  String?
-  gender    String?
-  age       Int?
 
   // one to one relationship with model User
   user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -72,23 +70,23 @@ model Pet {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name      String
-  breed     String
-  condition Int
-  type      String
-  age       Int?
-  gender    String?
-  traits    String?
-  details   String?
-  imageUrl  String?
+  name        String
+  breed       String
+  condition   Int
+  type        String
+  age         Int?
+  gender      String?
+  traits      String?
+  description String?
+  imageUrl    String?
 
-  status PET_STATUS @default(AVAILABLE)
+  status PET_STATUS @default(READY)
 
   // one to one relationship with model User
-  owner    User?     @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  owner    User?      @relation(fields: [ownerId], references: [id], onDelete: SetNull)
   ownerId  Int?
-  // one to one relationship with model Adoption
-  adoption Adoption?
+  // one to many relationship with model Adoption
+  adoption Adoption[]
 
   @@map("pets")
 }
@@ -106,7 +104,7 @@ model Adoption {
   adopterId Int?
 
   adoptee   Pet? @relation(fields: [adopteeId], references: [id], onDelete: SetNull)
-  adopteeId Int? @unique
+  adopteeId Int?
 
   @@map("adoptions")
 }

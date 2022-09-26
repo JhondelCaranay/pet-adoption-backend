@@ -14,6 +14,7 @@ import {
   HttpStatus,
   UseGuards,
   Get,
+  Param,
 } from '@nestjs/common';
 import {
   GetCurrentUser,
@@ -90,11 +91,23 @@ export class AuthController {
     return this.authService.getMe(userId);
   }
 
-  // testing role base authorization. status working
-  @Post('create')
-  @Roles('ADMIN') // roles is a custom decorator used to check if user has a role of admin
-  @HttpCode(HttpStatus.CREATED)
-  createUser(@Body() dto: AuthRegisterDto) {
-    return 'create user';
+  @Get('users')
+  @Public()
+  getUsers() {
+    return this.authService.getUsers();
   }
+
+  @Get('users/:id')
+  @Public()
+  getUser(@Param('id') id: number) {
+    return this.authService.getUserById(id);
+  }
+
+  // testing role base authorization. status working
+  // @Post('create')
+  // @Roles('ADMIN') // roles is a custom decorator used to check if user has a role of admin
+  // @HttpCode(HttpStatus.CREATED)
+  // createUser(@Body() dto: AuthRegisterDto) {
+  //   return 'create user';
+  // }
 }
