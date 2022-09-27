@@ -10,25 +10,25 @@ import {
 
 export class UpdateAdoptionDto {
   @IsOptional()
-  @IsDateString({ message: 'Schedule must be a date' })
-  @IsNotEmpty({ message: 'Schedule is required' })
+  @IsDateString()
+  @IsNotEmpty()
   schedule: Date;
 
   @IsOptional()
   @IsEnum(ADOPTION_STATUS, {
     message: 'Status must be PENDING, APPROVED or REJECTED',
   })
-  @IsNotEmpty({ message: 'status is required' })
-  @IsString({ message: 'status must be a string' })
+  @IsNotEmpty()
+  @IsString()
   status: string;
 
   @IsOptional()
-  @IsNotEmpty({ message: 'adopterId is required' })
-  @IsNumber({}, { message: 'adopterId must be a number' })
+  @IsNotEmpty()
+  @IsNumber()
   adopterId: number;
 
   @IsOptional()
-  @IsNotEmpty({ message: 'adopteeId is required' })
-  @IsNumber({}, { message: 'adopteeId must be a number' })
+  @IsNotEmpty()
+  @IsNumber()
   adopteeId: number;
 }

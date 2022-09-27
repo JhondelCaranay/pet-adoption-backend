@@ -1,30 +1,32 @@
 import { Match } from './match.decorator';
-import { IsString, IsNotEmpty, IsEmail, IsNumber, IsNumberString } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail, IsNumberString } from 'class-validator';
 
 export class AuthRegisterDto {
-  @IsNotEmpty({ message: 'Firstname is required' })
-  @IsString({ message: 'Firstname must be a string' })
+  @IsNotEmpty()
+  @IsString()
   first_name: string;
-  @IsNotEmpty({ message: 'Lastname is required' })
-  @IsString({ message: 'Lastname must be a string' })
+  @IsNotEmpty()
+  @IsString()
   last_name: string;
-  @IsNotEmpty({ message: 'Contact is required' })
-  @IsString({ message: 'Contact must be a string' })
-  @IsNumberString('Contact must be a number')
+  @IsNotEmpty()
+  @IsString()
+  @IsNumberString()
   contact: string;
-  @IsNotEmpty({ message: 'Address is required' })
-  @IsString({ message: 'Address must be a string' })
+  @IsNotEmpty()
+  @IsString()
   address: string;
-  @IsNotEmpty({ message: 'Email is required' })
-  @IsString({ message: 'Email must be a string' })
-  @IsEmail({ message: 'Email is not valid' })
+  @IsNotEmpty()
+  @IsString()
+  @IsEmail()
   email: string;
-  @IsNotEmpty({ message: 'Password is required' })
-  @IsString({ message: 'Password must be a string' })
+  @IsNotEmpty()
+  @IsString()
   password: string;
-  @IsNotEmpty({ message: 'Password confirmation is required' })
-  @IsString({ message: 'Password confirmation must be a string' })
-  @Match('password', { message: 'Passwords do not match' }) // this is a custom decorator to match password and password confirmation. It is defined in match.decorator.ts. Compare password is still not built in class-validator
+  @IsNotEmpty()
+  @IsString()
+  @Match('password', {
+    message: 'password confirmation does not match password',
+  }) // this is a custom decorator to match password and password confirmation. It is defined in match.decorator.ts. Compare password is still not built in class-validator
   password_confirmation: string;
 }
 

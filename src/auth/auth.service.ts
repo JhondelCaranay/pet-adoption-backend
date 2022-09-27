@@ -1,10 +1,16 @@
 import { AuthRegisterDto } from './dto/auth-register.dto';
-import { AuthDto, ForgotPasswordDto, PasswordResetDto } from './dto';
+import {
+  AuthDto,
+  ConfirmResetCodeDto,
+  ForgotPasswordDto,
+  UpdatePasswordDto,
+} from './dto';
 import { PrismaService } from './../prisma/prisma.service';
 import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import * as randomize from 'randomatic';
@@ -213,13 +219,19 @@ export class AuthService {
   }
 
   async forgotPassword(dto: ForgotPasswordDto) {
-    // find user by email
-    const user = await this.prisma.user.findUnique({
+    // find user with email or phone
+    const user = await this.prisma.user.findFirst({
       where: {
-        email: dto.email,
-      },
-      include: {
-        profile: true,
+        OR: [
+          {
+            email: dto.search,
+          },
+          {
+            profile: {
+              contact: dto.search,
+            },
+          },
+        ],
       },
     });
 
@@ -229,29 +241,104 @@ export class AuthService {
     }
 
     // generate random code
-    const code = randomize('aA0', 8);
-    // store hash of generated random code in database
-    const hash_password_reset = await this.hashData(code);
+    const password_reset_code = randomize('aA0', 8);
+
+    // make the token expire in 5 minutes
+    const password_reset_token = this.jwtService.sign(
+      {
+        id: user.id,
+        password_reset_code,
+      },
+      {
+        expiresIn: '1m',
+        secret: process.env.PASSWORD_RESET_TOKEN_SECRET,
+      },
+    );
+    // save password_reset_token to database
     await this.prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
-        hashedPWResetToken: hash_password_reset,
+        hashedPWResetToken: password_reset_token,
       },
     });
 
-    // check if type is email or phone
-    if (dto.type === 'email') {
-      // nodemailer
-      await this.sendToSMTP(dto.email, code);
-    } else if (dto.type === 'phone') {
-      // vonage
-      await this.sendToSMS(user.profile.contact, code);
-    }
+    // send code to email
+    await this.sendToSMTP(user.email, password_reset_code);
 
     return {
-      message: `We sent a code to your ${dto.type} to reset your password. Please check your ${dto.type}.`,
+      message: `We sent a code to your email to reset your password. Please check your email.`,
+    };
+  }
+
+  async confirmResetCode(dto: ConfirmResetCodeDto) {
+    // find user with email or phone
+    const user = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          {
+            email: dto.search,
+          },
+          {
+            profile: {
+              contact: dto.search,
+            },
+          },
+        ],
+      },
+    });
+    // check if user not exist
+    if (!user || !user.hashedPWResetToken) {
+      throw new ForbiddenException('Invalid credentials');
+    }
+
+    // verify password_reset_token
+    try {
+      const decoded = this.jwtService.verify(user.hashedPWResetToken, {
+        secret: process.env.PASSWORD_RESET_TOKEN_SECRET,
+      });
+
+      // check if password_reset_code not match
+      if (decoded.password_reset_code !== dto.code) {
+        throw new ForbiddenException('Invalid credentials');
+      }
+
+      // remove password_reset_token
+      await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          hashedPWResetToken: null,
+        },
+      });
+
+      // generate tokens
+      const getTokens = this.getTokens(user.id, user.email, user.role);
+
+      // return tokens
+      return getTokens;
+    } catch (error) {
+      throw new ForbiddenException(
+        'Code is Invalid or Expired. Please request a new code.',
+      );
+    }
+  }
+
+  async updatePassword(userId: number, dto: UpdatePasswordDto) {
+    // update user password
+    await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        hash: await this.hashData(dto.password),
+      },
+    });
+
+    return {
+      message: 'Password updated successfully',
     };
   }
 
@@ -277,6 +364,7 @@ export class AuthService {
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
         console.log(error);
+        throw new InternalServerErrorException('Something went wrong');
       } else {
         console.log('Email sent: ' + info.response);
       }
@@ -284,14 +372,12 @@ export class AuthService {
   }
 
   async sendToSMS(phone: string, code: string) {
-    console.log('DEBUG 1');
     // @ts-ignore
     const vonage = new Vonage({
       apiKey: process.env.VONAGE_API_KEY,
       apiSecret: process.env.VONAGE_API_SECRET,
     });
 
-    console.log('DEBUG 2');
     const from: string = 'Vonage APIs';
     if (phone.startsWith('0')) {
       phone = `63${phone.substring(1)}`;
@@ -302,6 +388,7 @@ export class AuthService {
     vonage.message.sendSms(from, to, text, {}, (err, responseData) => {
       if (err) {
         console.log(err);
+        throw new InternalServerErrorException('Something went wrong');
       } else {
         if (responseData.messages[0]['status'] === '0') {
           console.log('Message sent successfully.');
@@ -309,49 +396,10 @@ export class AuthService {
           console.log(
             `Message failed with error: ${responseData.messages[0]['error-text']}`,
           );
-          throw new ForbiddenException('Failed to send message.');
+          throw new InternalServerErrorException('Something went wrong');
         }
       }
     });
-  }
-
-  async passwordReset(dto: PasswordResetDto) {
-    // find user by email
-    const user = await this.prisma.user.findUnique({
-      where: {
-        email: dto.email,
-      },
-    });
-
-    // check if user not exist
-    if (!user) {
-      throw new ForbiddenException('Invalid Credentials');
-    }
-
-    // compare password reset token and hashed password reset token
-    const isMatch = await bcrypt.compare(dto.code, user.hashedPWResetToken);
-    console.log(isMatch);
-
-    // check if not match
-    if (!isMatch) {
-      throw new ForbiddenException('Invalid Credentials');
-    }
-
-    // hash new password
-    const hash = await this.hashData(dto.new_password);
-
-    // update user password
-    await this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        hash,
-        hashedPWResetToken: null,
-      },
-    });
-
-    return { message: 'Password reset successfully' };
   }
 
   async updateRtHash(userId: number, refreshToken: string) {
@@ -403,19 +451,5 @@ export class AuthService {
       access_token,
       refresh_token,
     };
-  }
-
-  getPasswordResetToken(email: string) {
-    // generate access token
-    const password_reset_token = this.jwtService.sign(
-      {
-        email,
-      },
-      {
-        expiresIn: '10m',
-        secret: process.env.PASSWORD_RESET_TOKEN_SECRET,
-      },
-    );
-    return password_reset_token;
   }
 }

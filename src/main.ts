@@ -1,7 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { AccessTokenGuard } from './common/guards';
+// import { AccessTokenGuard } from './common/guards';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -30,7 +30,6 @@ async function bootstrap() {
 
   // i just update this to separate a port
   // 3000 is already using by react
-  app.setGlobalPrefix('api');
   await app.listen(3001);
 }
 bootstrap();

@@ -2,8 +2,9 @@ import { RefreshTokenGuard } from './../common/guards';
 import {
   AuthDto,
   AuthRegisterDto,
+  ConfirmResetCodeDto,
   ForgotPasswordDto,
-  PasswordResetDto,
+  UpdatePasswordDto,
 } from './dto';
 import { AuthService } from './auth.service';
 import {
@@ -35,8 +36,8 @@ export class AuthController {
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   signup(@Body() dto: AuthRegisterDto): Promise<Tokens> {
-    console.log(dto)
-    console.log('hitted')
+    console.log(dto);
+    console.log('hitted');
     return this.authService.signup(dto);
   }
 
@@ -82,10 +83,20 @@ export class AuthController {
   }
 
   @Public()
-  @Post('password-reset')
+  @Post('congirm-reset-code')
   @HttpCode(HttpStatus.OK) // by default post request will return 201 Created status code, but we want to return 200 OK status code
-  resetPassword(@Body() dto: PasswordResetDto) {
-    return this.authService.passwordReset(dto);
+  confirmResetCode(@Body() dto: ConfirmResetCodeDto) {
+    return this.authService.confirmResetCode(dto);
+  }
+
+  @Post('update-password')
+  @HttpCode(HttpStatus.OK) // by default post request will return 201 Created status code, but we want to return 200 OK status code
+  updatePassword(
+    @GetCurrentUserID() userId: number,
+    @Body() dto: UpdatePasswordDto,
+  ) {
+    console.log({ dto, userId });
+    return this.authService.updatePassword(userId, dto);
   }
 
   @Get('me')

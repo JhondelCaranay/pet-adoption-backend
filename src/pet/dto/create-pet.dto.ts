@@ -37,23 +37,23 @@ export class CreatePetDto {
   @IsString({ message: 'Gender must be a string' })
   gender: string;
 
-  @IsNotEmpty({ message: 'Traits is required' })
-  @IsString({ message: 'Traits must be a string' })
+  @IsNotEmpty()
+  @IsString()
   traits: string;
 
-  @IsNotEmpty({ message: 'Description is required' })
-  @IsString({ message: 'Description must be a string' })
+  @IsNotEmpty()
+  @IsString()
   description: string;
 
-  @IsNotEmpty({ message: 'Image is required' })
-  @IsString({ message: 'Image must be a string' })
+  @IsNotEmpty()
+  @IsString()
   imageUrl: string;
 
   // @IsIn(['READY', 'PENDING', 'ADOPTED'], {
   //   message: 'Status must be READY, PENDING or ADOPTED',
   // })
   @IsEnum(PET_STATUS, { message: 'Status must be READY, PENDING or ADOPTED' })
-  @IsNotEmpty({ message: 'status is required' })
-  @IsString({ message: 'status must be a string' })
+  @IsNotEmpty()
+  @IsString()
   status: string;
 }

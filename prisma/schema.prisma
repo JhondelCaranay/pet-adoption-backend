@@ -80,12 +80,8 @@ model Pet {
   description String?
   imageUrl    String?
 
-<<<<<<< HEAD
   status PET_STATUS @default(READY)
 
-=======
-  status PET_STATUS @default(AVAILABLE)
->>>>>>> c6c9c3eca63f651964722132edc7cea9392dc5bb
   // one to one relationship with model User
   owner    User?      @relation(fields: [ownerId], references: [id], onDelete: SetNull)
   ownerId  Int?
