@@ -14,6 +14,7 @@ export class PetService {
   constructor(private prisma: PrismaService) {}
 
   async createPet(dto: CreatePetDto): Promise<Pet> {
+    console.log(dto)
     const pet = await this.prisma.pet.create({
       data: {
         name: dto.name,
@@ -24,6 +25,7 @@ export class PetService {
         age: dto.age,
         gender: dto.gender,
         traits: dto.traits,
+        healthNotes: dto.healthNotes,
         description: dto.description,
         imageUrl: dto.imageUrl,
       },
@@ -68,6 +70,7 @@ export class PetService {
         gender: dto.gender || undefined,
         traits: dto.traits || undefined,
         description: dto.description || undefined,
+        healthNotes: dto.healthNotes || undefined,
         imageUrl: dto.imageUrl || undefined,
       },
     });

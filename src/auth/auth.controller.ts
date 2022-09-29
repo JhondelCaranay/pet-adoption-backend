@@ -24,6 +24,7 @@ import {
   Roles,
 } from 'src/common/decorators';
 import { Tokens } from './utils/types';
+import e from 'express';
 // import { AccessTokenGuard } from './../common/guards/accessToken.guard';
 // import { Request } from 'express';
 // import { AuthGuard } from '@nestjs/passport';
@@ -100,8 +101,8 @@ export class AuthController {
   }
 
   @Get('me')
-  getMe(@GetCurrentUserID() userId: number) {
-    return this.authService.getMe(userId);
+  async getMe(@GetCurrentUserID() userId: number) {
+    return await this.authService.getMe(userId);
   }
 
   @Get('users')

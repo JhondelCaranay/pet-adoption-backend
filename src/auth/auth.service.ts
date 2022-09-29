@@ -30,6 +30,9 @@ export class AuthService {
       where: {
         id: userId,
       },
+      // include:{
+      //   profile: true
+      // },
       select: {
         id: true,
         email: true,
@@ -45,7 +48,7 @@ export class AuthService {
         },
       },
     });
-
+    console.log(user);
     return user;
   }
 
