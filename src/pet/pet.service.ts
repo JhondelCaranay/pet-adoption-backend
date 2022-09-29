@@ -25,6 +25,7 @@ export class PetService {
         gender: dto.gender,
         traits: dto.traits,
         description: dto.description,
+        healthNotes: dto.healthNotes,
         imageUrl: dto.imageUrl,
       },
     });
@@ -68,6 +69,7 @@ export class PetService {
         gender: dto.gender || undefined,
         traits: dto.traits || undefined,
         description: dto.description || undefined,
+        healthNotes: dto.healthNotes || undefined,
         imageUrl: dto.imageUrl || undefined,
       },
     });

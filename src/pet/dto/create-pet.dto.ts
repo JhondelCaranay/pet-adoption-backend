@@ -8,6 +8,7 @@ import {
   IsPositive,
   IsIn,
   IsEnum,
+  IsNumberString,
 } from 'class-validator';
 export class CreatePetDto {
   @IsNotEmpty({ message: 'Name is required' })
@@ -44,6 +45,10 @@ export class CreatePetDto {
   @IsNotEmpty()
   @IsString()
   description: string;
+
+  @IsNotEmpty()
+  @IsString()
+  healthNotes: string;
 
   @IsNotEmpty()
   @IsString()

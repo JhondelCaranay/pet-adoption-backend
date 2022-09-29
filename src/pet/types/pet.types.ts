@@ -9,4 +9,5 @@ export type Pet = {
   description: string;
   imageUrl: string;
   status: string;
+  healthNotes: string;
 };

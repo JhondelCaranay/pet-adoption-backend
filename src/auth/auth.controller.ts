@@ -100,8 +100,8 @@ export class AuthController {
   }
 
   @Get('me')
-  getMe(@GetCurrentUserID() userId: number) {
-    return this.authService.getMe(userId);
+  async getMe(@GetCurrentUserID() userId: number) {
+    return await this.authService.getMe(userId);
   }
 
   @Get('users')

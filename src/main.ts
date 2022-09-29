@@ -2,7 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 // import { AccessTokenGuard } from './common/guards';
-
+import * as bodyParser from 'body-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -10,6 +10,8 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   // enable cors
   app.enableCors();
+  app.use(bodyParser.json({ limit: '50mb' }));
+  app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
   // add validation pipe to every route
   app.useGlobalPipes(

@@ -57,6 +57,11 @@ export class UpdatePetDto {
   @IsNotEmpty()
   @IsString()
   @IsOptional()
+  healthNotes: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsOptional()
   imageUrl: string;
 
   // @IsIn(['READY', 'PENDING', 'ADOPTED'], {
