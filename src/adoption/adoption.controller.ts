@@ -7,6 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -29,13 +30,16 @@ export class AdoptionController {
   }
 
   @Get(':id')
-  getAdoptionById(@Param('id') id: number) {
+  getAdoptionById(@Param('id', ParseIntPipe) id: number) {
     return this.adoptionService.getAdoptionById(id);
   }
 
   @Roles('ADMIN')
   @Patch(':id')
-  updateAdoptionById(@Param('id') id: number, @Body() dto: UpdateAdoptionDto) {
+  updateAdoptionById(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateAdoptionDto,
+  ) {
     return this.adoptionService.updateAdoptionById(id, dto);
   }
 }

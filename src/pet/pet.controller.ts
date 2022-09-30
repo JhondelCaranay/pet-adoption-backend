@@ -9,8 +9,11 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseBoolPipe,
+  ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { Pet } from './types';
 @Controller('pets')
@@ -27,15 +30,15 @@ export class PetController {
   @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
-  getPet(): Promise<Pet[]> {
-    return this.petService.getPets();
+  getPet(@Query('filter', ParseBoolPipe) exclude: boolean): Promise<Pet[]> {
+    return this.petService.getPets(exclude);
   }
 
   // get pet by id
   @Public()
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  getPetById(@Param('id') id: number): Promise<Pet> {
+  getPetById(@Param('id', ParseIntPipe) id: number): Promise<Pet> {
     return this.petService.getPetById(id);
   }
 
@@ -43,7 +46,10 @@ export class PetController {
   @Patch(':id')
   @Roles('ADMIN')
   @HttpCode(HttpStatus.OK)
-  updatePet(@Param('id') id: number, @Body() dto: UpdatePetDto): Promise<Pet> {
+  updatePet(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdatePetDto,
+  ): Promise<Pet> {
     return this.petService.updatePet(id, dto);
   }
 
@@ -51,7 +57,7 @@ export class PetController {
   @Delete(':id')
   @Roles('ADMIN')
   @HttpCode(HttpStatus.OK)
-  deletePet(@Param('id') id: number): Promise<Pet> {
+  deletePet(@Param('id', ParseIntPipe) id: number): Promise<Pet> {
     return this.petService.deletePet(id);
   }
 }

@@ -17,9 +17,9 @@ export class AdoptionService {
     const Pet = await this.petService.getPetById(dto.adopteeId);
 
     // check if pet is not READY for adoption
-    if (Pet.status == PET_STATUS.ADOPTED || Pet.status == PET_STATUS.PENDING) {
+    if (Pet.status == PET_STATUS.ADOPTED) {
       throw new BadRequestException(
-        `Pet with id ${dto.adopteeId} is already on schedule for adoption or has been adopted`,
+        `Pet with id ${dto.adopteeId} is already adopted`,
       );
     }
 
@@ -255,7 +255,7 @@ export class AdoptionService {
 
     // update pet status if adoption is rejected
     if (adoption.status === ADOPTION_STATUS.REJECTED) {
-      Pet.status = PET_STATUS.READY;
+      Pet.status = PET_STATUS.PENDING;
       await this.petService.updatePet(adoption.adoptee.id, Pet);
     }
 
