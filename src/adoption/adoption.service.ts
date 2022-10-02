@@ -8,8 +8,7 @@ import {
 } from '@nestjs/common';
 import { ADOPTION_STATUS, PET_STATUS } from '@prisma/client';
 import { sendSmsMessage } from 'src/common/utils/vonage.util';
-
-// import * as dateFormat from 'dateformat';
+import { format } from 'date-fns';
 @Injectable()
 export class AdoptionService {
   constructor(private prisma: PrismaService, private petService: PetService) {}
@@ -244,16 +243,18 @@ export class AdoptionService {
       Pet.status = PET_STATUS.ADOPTED;
       await this.petService.updatePet(adoption.adoptee.id, Pet);
 
-      // // @ts-ignore
-      // const readableDate = dateFormat(
+      // date fns format 'dddd, mmmm dS, yyyy, h:MM:ss TT'
+      const readableDate = format(new Date(adoption.schedule), 'PPpp');
+      sendSmsMessage(
+        adoption.adopter.profile.contact,
+        'Your application for adoption has been approved. You are scheduled to meet the pet on ' +
+          readableDate +
+          '.',
+      );
+
+      // const readableDate = await dateFormat(
       //   adoption.schedule,
       //   'dddd, mmmm dS, yyyy, h:MM:ss TT',
-      // );
-
-      // sendSmsMessage(
-      //   adoption.adopter.profile.contact,
-      //   'Your application for adoption has been approved. You are scheduled to meet the pet on ' +
-      //     readableDate,
       // );
     }
 
@@ -262,10 +263,10 @@ export class AdoptionService {
       Pet.status = PET_STATUS.PENDING;
       await this.petService.updatePet(adoption.adoptee.id, Pet);
 
-      // sendSmsMessage(
-      //   adoption.adopter.profile.contact,
-      //   'Your application for adoption has been rejected.',
-      // );
+      sendSmsMessage(
+        adoption.adopter.profile.contact,
+        'Your application for adoption has been rejected.',
+      );
     }
 
     // update pet status if adoption is peding

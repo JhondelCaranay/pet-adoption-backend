@@ -9,6 +9,7 @@ cloudinary.config({
 export const uploadImage = async (base64: string) => {
   const result = await cloudinary.uploader.upload(base64, {
     upload_preset: 'petfolders',
+    resource_type: '',
   });
 
   return {
