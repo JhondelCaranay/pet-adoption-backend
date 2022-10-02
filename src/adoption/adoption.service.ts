@@ -87,35 +87,49 @@ export class AdoptionService {
     return adoption;
   }
 
-  async getAllAdoptions(search: string = '') {
+  async getAllAdoptions(search: string = 'ALL') {
     // get all adoptions
+
+    const includes = Object.values(ADOPTION_STATUS);
+
+    const isIncludes = includes.find((item) => item == search.toUpperCase());
+
     const adoptions = await this.prisma.adoption.findMany({
       where: {
-        adopter: {
-          OR: [
-            {
-              email: {
-                contains: search,
-              },
+        OR: [
+          {
+            status: {
+              in: search === 'ALL' ? includes : [isIncludes],
             },
-            {
-              profile: {
-                OR: [
-                  {
-                    fist_name: {
-                      contains: search,
-                    },
+          },
+          {
+            adopter: {
+              OR: [
+                {
+                  email: {
+                    contains: search,
                   },
-                  {
-                    last_name: {
-                      contains: search,
-                    },
+                },
+                {
+                  profile: {
+                    OR: [
+                      {
+                        fist_name: {
+                          contains: search,
+                        },
+                      },
+                      {
+                        last_name: {
+                          contains: search,
+                        },
+                      },
+                    ],
                   },
-                ],
-              },
+                },
+              ],
             },
-          ],
-        },
+          },
+        ],
       },
       select: {
         id: true,
