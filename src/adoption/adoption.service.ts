@@ -7,6 +7,9 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { ADOPTION_STATUS, PET_STATUS } from '@prisma/client';
+import { sendSmsMessage } from 'src/common/utils/vonage.util';
+
+// import * as dateFormat from 'dateformat';
 @Injectable()
 export class AdoptionService {
   constructor(private prisma: PrismaService, private petService: PetService) {}
@@ -184,17 +187,6 @@ export class AdoptionService {
     // check if adoption exists
     const isAdoptionExist = await this.getAdoptionById(id);
 
-    // // check if pet is aleady adopted
-    // const isPetAlreadyAdopted = await this.petService.getPetById(
-    //   isAdoptionExist.adoptee.id,
-    // );
-
-    // if (isPetAlreadyAdopted.status == PET_STATUS.ADOPTED) {
-    //   throw new BadRequestException(
-    //     `Pet with id ${isAdoptionExist.adoptee.id} has already been adopted`,
-    //   );
-    // }
-
     // update adoption
     const adoption = await this.prisma.adoption.update({
       where: {
@@ -251,18 +243,39 @@ export class AdoptionService {
     if (adoption.status === ADOPTION_STATUS.APPROVED) {
       Pet.status = PET_STATUS.ADOPTED;
       await this.petService.updatePet(adoption.adoptee.id, Pet);
+
+      // // @ts-ignore
+      // const readableDate = dateFormat(
+      //   adoption.schedule,
+      //   'dddd, mmmm dS, yyyy, h:MM:ss TT',
+      // );
+
+      // sendSmsMessage(
+      //   adoption.adopter.profile.contact,
+      //   'Your application for adoption has been approved. You are scheduled to meet the pet on ' +
+      //     readableDate,
+      // );
     }
 
     // update pet status if adoption is rejected
     if (adoption.status === ADOPTION_STATUS.REJECTED) {
       Pet.status = PET_STATUS.PENDING;
       await this.petService.updatePet(adoption.adoptee.id, Pet);
+
+      // sendSmsMessage(
+      //   adoption.adopter.profile.contact,
+      //   'Your application for adoption has been rejected.',
+      // );
     }
 
     // update pet status if adoption is peding
     if (adoption.status === ADOPTION_STATUS.PENDING) {
       Pet.status = PET_STATUS.PENDING;
       await this.petService.updatePet(adoption.adoptee.id, Pet);
+      sendSmsMessage(
+        adoption.adopter.profile.contact,
+        'Your adoption is pending',
+      );
     }
 
     adoption.adoptee.status = Pet.status as PET_STATUS;

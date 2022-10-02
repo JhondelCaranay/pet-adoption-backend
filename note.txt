@@ -45,6 +45,11 @@ HASHING
 > npm i bcrypt @types/bcrypt
 
 
+Cloudenary
+https://www.npmjs.com/package/cloudinary
+> npm i cloudinary
+
+
 NEST JS WEBTOKEN
 > npm i --save @nestjs/passport passport passport-local
 > npm i --save-dev @types/passport-local

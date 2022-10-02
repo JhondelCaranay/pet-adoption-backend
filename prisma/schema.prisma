@@ -79,6 +79,7 @@ model Pet {
   traits      String?
   description String?
   imageUrl    String?
+  imageId     String?
   healthNotes String?
 
   status PET_STATUS @default(READY)

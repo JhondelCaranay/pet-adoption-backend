@@ -8,6 +8,7 @@ export type Pet = {
   traits: string;
   description: string;
   imageUrl: string;
+  imageId: string;
   status: string;
   healthNotes: string;
 };

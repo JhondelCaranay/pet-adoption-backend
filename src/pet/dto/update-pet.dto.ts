@@ -9,6 +9,7 @@ import {
   IsIn,
   IsOptional,
   IsEnum,
+  IsBase64,
 } from 'class-validator';
 export class UpdatePetDto {
   @IsNotEmpty()

@@ -9,6 +9,7 @@ import {
   IsIn,
   IsEnum,
   IsNumberString,
+  IsBase64,
 } from 'class-validator';
 export class CreatePetDto {
   @IsNotEmpty({ message: 'Name is required' })

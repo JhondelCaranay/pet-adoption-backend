@@ -8,12 +8,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Pet } from './types';
+import { deleteImage, uploadImage } from 'src/common/utils/cloudenary.util';
 
 @Injectable()
 export class PetService {
   constructor(private prisma: PrismaService) {}
 
   async createPet(dto: CreatePetDto): Promise<Pet> {
+    // upload image to cloudinary
+    const { secure_url, public_id } = await uploadImage(dto.imageUrl);
+
     const pet = await this.prisma.pet.create({
       data: {
         name: dto.name,
@@ -26,9 +30,11 @@ export class PetService {
         traits: dto.traits,
         description: dto.description,
         healthNotes: dto.healthNotes,
-        imageUrl: dto.imageUrl,
+        imageUrl: secure_url,
+        imageId: public_id,
       },
     });
+    console.log(pet);
     return pet;
   }
 
@@ -60,6 +66,19 @@ export class PetService {
   async updatePet(id: number, dto: UpdatePetDto): Promise<Pet> {
     // check if pet exists
     const isPet = await this.getPetById(id);
+    // check if image is updated
+
+    let imageUrl: string = '';
+    let imageId: string = '';
+
+    if (dto.imageUrl) {
+      // delete old image
+      deleteImage(isPet.imageId);
+      // upload new image
+      const res = await uploadImage(dto.imageUrl);
+      imageUrl = res.secure_url;
+      imageId = res.public_id;
+    }
 
     const pet = await this.prisma.pet.update({
       where: {
@@ -76,7 +95,8 @@ export class PetService {
         traits: dto.traits || undefined,
         description: dto.description || undefined,
         healthNotes: dto.healthNotes || undefined,
-        imageUrl: dto.imageUrl || undefined,
+        imageUrl: dto.imageUrl ? imageUrl : undefined,
+        imageId: dto.imageUrl ? imageId : undefined,
       },
     });
 
@@ -86,6 +106,9 @@ export class PetService {
   async deletePet(id: number): Promise<Pet> {
     // check if pet exists
     const isPet = await this.getPetById(id);
+
+    // delete image from cloudinary
+    deleteImage(isPet.imageId);
 
     const pet = await this.prisma.pet.delete({
       where: {
