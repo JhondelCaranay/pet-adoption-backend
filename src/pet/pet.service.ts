@@ -38,12 +38,29 @@ export class PetService {
     return pet;
   }
 
-  async getPets(exclude: boolean): Promise<Pet[]> {
+  async getPets(exclude: boolean, search: string = ''): Promise<Pet[]> {
     const pets = await this.prisma.pet.findMany({
       where: {
         status: {
           not: exclude ? PET_STATUS.ADOPTED : undefined,
         },
+        OR: [
+          {
+            name: {
+              contains: search,
+            },
+          },
+          {
+            breed: {
+              contains: search,
+            },
+          },
+          {
+            type: {
+              contains: search,
+            },
+          },
+        ],
       },
     });
     return pets;

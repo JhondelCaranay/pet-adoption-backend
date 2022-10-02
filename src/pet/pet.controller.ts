@@ -30,8 +30,11 @@ export class PetController {
   @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
-  getPet(@Query('filter', ParseBoolPipe) exclude: boolean): Promise<Pet[]> {
-    return this.petService.getPets(exclude);
+  getPet(
+    @Query('filter', ParseBoolPipe) exclude: boolean,
+    @Query('search') search: string,
+  ): Promise<Pet[]> {
+    return this.petService.getPets(exclude, search);
   }
 
   // get pet by id

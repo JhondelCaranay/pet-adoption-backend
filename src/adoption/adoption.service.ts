@@ -87,9 +87,36 @@ export class AdoptionService {
     return adoption;
   }
 
-  async getAllAdoptions() {
+  async getAllAdoptions(search: string = '') {
     // get all adoptions
     const adoptions = await this.prisma.adoption.findMany({
+      where: {
+        adopter: {
+          OR: [
+            {
+              email: {
+                contains: search,
+              },
+            },
+            {
+              profile: {
+                OR: [
+                  {
+                    fist_name: {
+                      contains: search,
+                    },
+                  },
+                  {
+                    last_name: {
+                      contains: search,
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
       select: {
         id: true,
         schedule: true,

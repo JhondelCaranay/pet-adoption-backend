@@ -16,6 +16,7 @@ import {
   UseGuards,
   Get,
   Param,
+  Query,
 } from '@nestjs/common';
 import {
   GetCurrentUser,
@@ -106,8 +107,8 @@ export class AuthController {
 
   @Get('users')
   @Public()
-  getUsers() {
-    return this.authService.getUsers();
+  getUsers(@Query('search') search: string) {
+    return this.authService.getUsers(search);
   }
 
   @Get('users/:id')

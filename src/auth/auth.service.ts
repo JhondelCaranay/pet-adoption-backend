@@ -18,7 +18,9 @@ import { JwtService } from '@nestjs/jwt/dist';
 import * as nodemailer from 'nodemailer';
 import * as Vonage from '@vonage/server-sdk';
 import { Tokens } from './utils/types';
+import { ROLE } from '@prisma/client';
 // import { hashData } from './utils/functions';
+
 @Injectable()
 export class AuthService {
   // JwtService come from JwtModule.register({})
@@ -48,9 +50,34 @@ export class AuthService {
 
     return user;
   }
-
-  async getUsers() {
+  async getUsers(search: string = '') {
     const users = await this.prisma.user.findMany({
+      where: {
+        role: ROLE.USER,
+        OR: [
+          {
+            email: {
+              contains: search,
+            },
+          },
+          {
+            profile: {
+              OR: [
+                {
+                  fist_name: {
+                    contains: search,
+                  },
+                },
+                {
+                  last_name: {
+                    contains: search,
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
       select: {
         id: true,
         email: true,
@@ -63,6 +90,7 @@ export class AuthService {
             address: true,
           },
         },
+        createdAt: true,
       },
     });
 

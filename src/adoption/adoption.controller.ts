@@ -10,7 +10,9 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
+
 import { CreateAdoptionDto, UpdateAdoptionDto } from './dto';
 import { Roles } from 'src/common/decorators';
 
@@ -25,8 +27,8 @@ export class AdoptionController {
   }
 
   @Get('')
-  getAllAdoptions() {
-    return this.adoptionService.getAllAdoptions();
+  getAllAdoptions(@Query('search') search: string) {
+    return this.adoptionService.getAllAdoptions(search);
   }
 
   @Get(':id')
