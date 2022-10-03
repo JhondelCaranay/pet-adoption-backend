@@ -18,8 +18,8 @@ export const uploadImage = async (base64: string) => {
   };
 };
 
-export const deleteImage = (public_id: string) => {
-  cloudinary.uploader.destroy(public_id);
+export const deleteImage = async (public_id: string) => {
+  await cloudinary.uploader.destroy(public_id);
 };
 
 export default cloudinary;

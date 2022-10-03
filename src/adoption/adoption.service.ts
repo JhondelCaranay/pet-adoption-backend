@@ -15,16 +15,17 @@ export class AdoptionService {
 
   // create adoption
   async createAdoption(dto: CreateAdoptionDto) {
-    // check if pet exists
+    // check if pet
+    console.log('DEBUG 1');
     const Pet = await this.petService.getPetById(dto.adopteeId);
-
+    console.log('DEBUG 2');
     // check if pet is not READY for adoption
     if (Pet.status == PET_STATUS.ADOPTED) {
       throw new BadRequestException(
         `Pet with id ${dto.adopteeId} is already adopted`,
       );
     }
-
+    console.log('DEBUG 3');
     // check if user exists
     const isUser = await this.prisma.user.findUnique({
       where: {
@@ -34,7 +35,7 @@ export class AdoptionService {
     if (!isUser) {
       throw new NotFoundException(`User with id ${dto.adopterId} not found`);
     }
-
+    console.log('DEBUG 4');
     // create adoption
     const adoption = await this.prisma.adoption.create({
       data: {
@@ -79,10 +80,19 @@ export class AdoptionService {
         },
       },
     });
-
+    console.log('DEBUG 5');
     // update pet status
     Pet.status = PET_STATUS.PENDING;
-    await this.petService.updatePet(dto.adopteeId, Pet);
+    console.log('DEBUG 6', { Pet });
+    // await this.petService.updatePet(dto.adopteeId, Pet);
+    await this.prisma.pet.update({
+      where: {
+        id: Number(dto.adopteeId),
+      },
+      data: {
+        status: PET_STATUS.PENDING,
+      },
+    });
     adoption.adoptee.status = PET_STATUS.PENDING;
     return adoption;
   }

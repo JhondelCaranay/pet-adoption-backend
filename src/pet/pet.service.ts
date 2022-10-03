@@ -34,7 +34,7 @@ export class PetService {
         imageId: public_id,
       },
     });
-    console.log(pet);
+    // console.log(pet);
     return pet;
   }
 
@@ -90,7 +90,7 @@ export class PetService {
 
     if (dto.imageUrl) {
       // delete old image
-      deleteImage(isPet.imageId);
+      await deleteImage(isPet.imageId);
       // upload new image
       const res = await uploadImage(dto.imageUrl);
       imageUrl = res.secure_url;
@@ -125,7 +125,7 @@ export class PetService {
     const isPet = await this.getPetById(id);
 
     // delete image from cloudinary
-    deleteImage(isPet.imageId);
+    await deleteImage(isPet.imageId);
 
     const pet = await this.prisma.pet.delete({
       where: {
