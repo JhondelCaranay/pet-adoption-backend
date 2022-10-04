@@ -278,7 +278,7 @@ export class AuthService {
         password_reset_code,
       },
       {
-        expiresIn: '1m',
+        expiresIn: '5m',
         secret: process.env.PASSWORD_RESET_TOKEN_SECRET,
       },
     );
