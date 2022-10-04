@@ -88,7 +88,8 @@ export class PetService {
     let imageUrl: string = '';
     let imageId: string = '';
 
-    if (dto.imageUrl) {
+    // check if base64 image data:image
+    if (dto.imageUrl.slice(0, 10) === 'data:image') {
       // delete old image
       await deleteImage(isPet.imageId);
       // upload new image
