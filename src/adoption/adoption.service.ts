@@ -314,13 +314,13 @@ export class AdoptionService {
 
     // update pet status if adoption is rejected
     if (adoption.status === ADOPTION_STATUS.REJECTED) {
-      adoption.adoptee.status = PET_STATUS.READY;
+      adoption.adoptee.status = PET_STATUS.PENDING;
       await this.prisma.pet.update({
         where: {
           id: Number(adoption.adoptee.id),
         },
         data: {
-          status: PET_STATUS.READY,
+          status: PET_STATUS.PENDING,
         },
       });
 
