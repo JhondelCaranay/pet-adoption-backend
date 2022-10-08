@@ -7,19 +7,28 @@ cloudinary.config({
 });
 
 export const uploadImage = async (base64: string) => {
-  const result = await cloudinary.uploader.upload(base64, {
-    upload_preset: 'petfolders',
-    resource_type: '',
-  });
-
-  return {
-    secure_url: result.secure_url,
-    public_id: result.public_id,
-  };
+  try {
+    console.log('the base url:::', base64);
+    const result = await cloudinary.uploader.upload(base64, {
+      upload_preset: 'petfolders',
+      resource_type: '',
+    });
+    return {
+      secure_url: result?.url,
+      public_id: result?.public_id,
+    };
+  } catch (error) {
+    console.error('error cloudinary upload', error)
+  }
 };
 
 export const deleteImage = async (public_id: string) => {
+  try {
   await cloudinary.uploader.destroy(public_id);
+    
+  } catch (error) {
+    console.error('error cloudinary upload')
+  }
 };
 
 export default cloudinary;

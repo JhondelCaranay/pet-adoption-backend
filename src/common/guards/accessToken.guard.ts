@@ -17,7 +17,7 @@ export class AccessTokenGuard extends AuthGuard('jwt') {
       context.getHandler(),
     );
 
-    console.log('AccessTokenGuard ', { isPublic });
+    // console.log('AccessTokenGuard ', { isPublic });
 
     // if isPublic is true, then skip authentication
     if (isPublic) {

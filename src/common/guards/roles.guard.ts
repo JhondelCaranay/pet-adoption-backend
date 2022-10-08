@@ -21,7 +21,7 @@ export class RolesGuard implements CanActivate {
     // get user from request object
     const user = request.user;
 
-    console.log('ROLES GUARD ', { roles, user });
+    // console.log('ROLES GUARD ', { roles, user });
 
     // match roles given in route and user role
     return this.matchRoles(roles, user.role);
