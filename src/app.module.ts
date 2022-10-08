@@ -5,8 +5,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard, RolesGuard } from './common/guards';
 import { PetModule } from './pet/pet.module';
 import { AdoptionModule } from './adoption/adoption.module';
+import { FeedbackModule } from './feedback/feedback.module';
 @Module({
-  imports: [PrismaModule, AuthModule, PetModule, AdoptionModule],
+  imports: [PrismaModule, AuthModule, PetModule, AdoptionModule, FeedbackModule],
   controllers: [],
   providers: [
     {
