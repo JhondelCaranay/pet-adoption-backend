@@ -11,15 +11,19 @@ import {
 } from '@nestjs/common';
 import { Feedback } from '@prisma/client';
 import { CreateFeedbackDto, UpdateFeedbackDto } from './dto';
-import { Public, Roles } from 'src/common/decorators';
+import { GetCurrentUserID, Public, Roles } from 'src/common/decorators';
 
 @Controller('feedback')
 export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  createFeedback(@Body() dto: CreateFeedbackDto): Promise<Feedback | any> {
-    return this.feedbackService.createFeedback(dto);
+  createFeedback(
+    @GetCurrentUserID() userId: number,
+    @Body() dto: CreateFeedbackDto,
+  ): Promise<Feedback | any> {
+    return this.feedbackService.createFeedback(dto, userId);
   }
 
   @Roles('ADMIN')

@@ -8,14 +8,17 @@ import { CreateFeedbackDto } from './dto';
 export class FeedbackService {
   constructor(private prisma: PrismaService) {}
 
-  async createFeedback(dto: CreateFeedbackDto): Promise<Feedback | any> {
+  async createFeedback(
+    dto: CreateFeedbackDto,
+    userId: number,
+  ): Promise<Feedback | any> {
     const feedback = await this.prisma.feedback.create({
       data: {
         rate: dto.rate,
         message: dto.message,
         user: {
           connect: {
-            id: dto.userId,
+            id: userId,
           },
         },
       },

@@ -71,6 +71,7 @@ model Pet {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  animalId    String?
   name        String
   breed       String
   condition   Int

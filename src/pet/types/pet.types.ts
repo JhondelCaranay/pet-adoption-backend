@@ -11,4 +11,5 @@ export type Pet = {
   imageId: string;
   status: string;
   healthNotes: string;
+  animalId: string;
 };

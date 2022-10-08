@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { PET_STATUS } from '@prisma/client';
 import { CreatePetDto, UpdatePetDto } from './dto';
 import { PrismaService } from './../prisma/prisma.service';
@@ -34,7 +35,24 @@ export class PetService {
         imageId: public_id,
       },
     });
-    // console.log(pet);
+
+    let PetType = pet.type[0].toUpperCase();
+    let PetId = pet.id < 10 ? `0${pet.id}` : pet.id;
+
+    const formatString = `uuuu-MM-dd'-${PetId}${PetType}'`;
+    const formattedDate = format(pet.createdAt, formatString);
+
+    await this.prisma.pet.update({
+      where: {
+        id: pet.id,
+      },
+      data: {
+        animalId: formattedDate,
+      },
+    });
+
+    pet.animalId = formattedDate;
+
     return pet;
   }
 

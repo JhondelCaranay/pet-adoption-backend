@@ -7,8 +7,4 @@ export class CreateFeedbackDto {
   @IsNotEmpty()
   @IsString()
   message: string;
-
-  @IsNotEmpty()
-  @IsNumber()
-  userId: number;
 }
