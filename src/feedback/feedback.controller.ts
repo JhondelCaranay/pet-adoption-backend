@@ -49,6 +49,5 @@ export class FeedbackController {
   @Delete(':id')
   deleteFeedback(@Param('id', ParseIntPipe) id: number): Promise<Feedback> {
     return this.feedbackService.deleteFeedback(id);
-
   }
 }
