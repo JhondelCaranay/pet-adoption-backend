@@ -86,6 +86,27 @@ export class FeedbackService {
       where: {
         pin: true,
       },
+      select: {
+        rate: true,
+        message: true,
+        id: true,
+        pin: true,
+        createdAt: true,
+        user: {
+          select: {
+            role: true,
+            email: true,
+            id: true,
+            createdAt: true,
+            profile: true
+          }
+        }
+      },
+      orderBy: [
+        {
+          rate: 'desc'
+        }
+      ]
     });
   }
   
