@@ -8,7 +8,6 @@ cloudinary.config({
 
 export const uploadImage = async (base64: string) => {
   try {
-    console.log('the base url:::', base64);
     const result = await cloudinary.uploader.upload(base64, {
       upload_preset: 'petfolders',
       resource_type: '',

@@ -53,7 +53,30 @@ export class FeedbackService {
   }
 
   async getAllFeedbacks(): Promise<Feedback[] | any> {
-    const feedbacks = await this.prisma.feedback.findMany({});
+    const feedbacks = await this.prisma.feedback.findMany({
+      select: {
+        rate: true,
+        message: true,
+        id: true,
+        pin: true,
+        createdAt: true,
+        user: {
+          select: {
+            role: true,
+            email: true,
+            id: true,
+            createdAt: true,
+            profile: true
+          }
+        }
+      },
+      orderBy: [
+        {
+          rate: 'desc'
+        }
+      ]
+        
+    });
 
     return feedbacks;
   }
@@ -62,6 +85,14 @@ export class FeedbackService {
     return this.prisma.feedback.findMany({
       where: {
         pin: true,
+      },
+    });
+  }
+  
+  deleteFeedback(id: number): Promise<Feedback> {
+    return this.prisma.feedback.delete({
+      where: {
+        id
       },
     });
   }

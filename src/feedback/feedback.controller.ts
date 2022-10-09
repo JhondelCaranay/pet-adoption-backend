@@ -2,10 +2,12 @@ import { FeedbackService } from './feedback.service';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -42,5 +44,11 @@ export class FeedbackController {
   @Get('pinned')
   getAllPinnedFeedbacks(): Promise<Feedback[] | any> {
     return this.feedbackService.getAllPinnedFeedbacks();
+  }
+
+  @Delete(':id')
+  deleteFeedback(@Param('id', ParseIntPipe) id: number): Promise<Feedback> {
+    return this.feedbackService.deleteFeedback(id);
+
   }
 }
