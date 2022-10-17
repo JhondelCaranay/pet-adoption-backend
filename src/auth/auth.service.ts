@@ -19,6 +19,7 @@ import * as nodemailer from 'nodemailer';
 import * as Vonage from '@vonage/server-sdk';
 import { Tokens } from './utils/types';
 import { ROLE } from '@prisma/client';
+import { format } from 'date-fns';
 // import { hashData } from './utils/functions';
 
 @Injectable()
@@ -27,12 +28,89 @@ export class AuthService {
 
   constructor(private prisma: PrismaService, private jwtService: JwtService) {}
 
+  async getUserStats() {
+    // get total number of users every month in format {month: number, total: number}, includes all months from 0 to 12
+    const stats = [
+      {
+        month: 0,
+        total: 0,
+      },
+      {
+        month: 1,
+        total: 0,
+      },
+      {
+        month: 2,
+        total: 0,
+      },
+      {
+        month: 3,
+        total: 0,
+      },
+      {
+        month: 4,
+        total: 0,
+      },
+      {
+        month: 5,
+        total: 0,
+      },
+      {
+        month: 6,
+        total: 0,
+      },
+      {
+        month: 7,
+        total: 0,
+      },
+      {
+        month: 8,
+        total: 0,
+      },
+      {
+        month: 9,
+        total: 0,
+      },
+      {
+        month: 10,
+        total: 0,
+      },
+      {
+        month: 11,
+        total: 0,
+      },
+    ];
+    const yearNow = new Date().getFullYear();
+    // get all users
+    const users = await this.prisma.user.findMany({
+      select: {
+        createdAt: true,
+      },
+    });
+
+    // loop through users
+    users.forEach((user) => {
+      // get month
+      const month = new Date(user.createdAt).getMonth();
+      const year = new Date(user.createdAt).getFullYear();
+
+      // check if year is equal to current year
+      if (year === yearNow) {
+        // increment month total
+        stats[month].total++;
+      }
+    });
+
+    return stats;
+  }
+
   async getMe(userId: number) {
     const user = await this.prisma.user.findUnique({
       where: {
         id: userId,
       },
       select: {
+        userId: true,
         id: true,
         email: true,
         role: true,
@@ -50,6 +128,7 @@ export class AuthService {
 
     return user;
   }
+
   async getUsers(search: string = '') {
     const users = await this.prisma.user.findMany({
       where: {
@@ -80,6 +159,7 @@ export class AuthService {
       },
       select: {
         id: true,
+        userId: true,
         email: true,
         profile: {
           select: {
@@ -103,6 +183,7 @@ export class AuthService {
         id: userId,
       },
       select: {
+        userId: true,
         id: true,
         email: true,
         profile: {
@@ -137,12 +218,21 @@ export class AuthService {
       throw new ForbiddenException('Email already exist');
     }
 
+    // get all users
+    const users = await this.prisma.user.findMany();
+    const usersLength = users.length + 1;
+
+    // generate user id
+    const formatString = `uuuuMMdd'U'${usersLength}`;
+    const formattedDate = format(new Date(), formatString);
+
     //hash password
     const hash = await this.hashData(dto.password);
 
     // create user
     const newUser = await this.prisma.user.create({
       data: {
+        userId: `${formattedDate}`,
         email: dto.email,
         hash,
         profile: {

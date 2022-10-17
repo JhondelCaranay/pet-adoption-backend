@@ -37,8 +37,6 @@ export class AuthController {
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   signup(@Body() dto: AuthRegisterDto): Promise<Tokens> {
-    console.log(dto);
-    console.log('hitted');
     return this.authService.signup(dto);
   }
 
@@ -105,6 +103,12 @@ export class AuthController {
     return await this.authService.getMe(userId);
   }
 
+  @Get('users/stats')
+  @Public()
+  getUserStats() {
+    return this.authService.getUserStats();
+  }
+
   @Get('users')
   @Public()
   getUsers(@Query('search') search: string) {
@@ -116,12 +120,4 @@ export class AuthController {
   getUser(@Param('id') id: number) {
     return this.authService.getUserById(id);
   }
-
-  // testing role base authorization. status working
-  // @Post('create')
-  // @Roles('ADMIN') // roles is a custom decorator used to check if user has a role of admin
-  // @HttpCode(HttpStatus.CREATED)
-  // createUser(@Body() dto: AuthRegisterDto) {
-  //   return 'create user';
-  // }
 }

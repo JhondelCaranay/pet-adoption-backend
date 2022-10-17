@@ -16,16 +16,15 @@ export class AdoptionService {
   // create adoption
   async createAdoption(dto: CreateAdoptionDto) {
     // check if pet
-    console.log('DEBUG 1');
     const Pet = await this.petService.getPetById(dto.adopteeId);
-    console.log('DEBUG 2');
+
     // check if pet is not READY for adoption
     if (Pet.status == PET_STATUS.ADOPTED) {
       throw new BadRequestException(
         `Pet with id ${dto.adopteeId} is already adopted`,
       );
     }
-    console.log('DEBUG 3');
+
     // check if user exists
     const isUser = await this.prisma.user.findUnique({
       where: {
@@ -36,14 +35,25 @@ export class AdoptionService {
       throw new NotFoundException(`User with id ${dto.adopterId} not found`);
     }
     console.log('DEBUG 4');
+
+    // get all adoption
+    const adoptions = await this.prisma.adoption.findMany();
+    const adoptionsLength = adoptions.length + 1;
+
+    // generate user id
+    const formatString = `uuuuMMdd'AD'${adoptionsLength}`;
+    const formattedDate = format(new Date(), formatString);
+
     // create adoption
     const adoption = await this.prisma.adoption.create({
       data: {
+        adoptionId: formattedDate,
         schedule: dto.schedule,
         adopterId: dto.adopterId,
         adopteeId: dto.adopteeId,
       },
       select: {
+        adoptionId: true,
         id: true,
         schedule: true,
         status: true,
@@ -190,6 +200,7 @@ export class AdoptionService {
         id: Number(id),
       },
       select: {
+        adoptionId: true,
         id: true,
         schedule: true,
         status: true,
@@ -250,6 +261,7 @@ export class AdoptionService {
         adopteeId: dto.adopteeId || undefined,
       },
       select: {
+        adoptionId: true,
         id: true,
         schedule: true,
         status: true,
@@ -344,5 +356,75 @@ export class AdoptionService {
     }
 
     return adoption;
+  }
+
+  async getAdoptionStats() {
+    const stats = [
+      {
+        month: 0,
+        total: 0,
+      },
+      {
+        month: 1,
+        total: 0,
+      },
+      {
+        month: 2,
+        total: 0,
+      },
+      {
+        month: 3,
+        total: 0,
+      },
+      {
+        month: 4,
+        total: 0,
+      },
+      {
+        month: 5,
+        total: 0,
+      },
+      {
+        month: 6,
+        total: 0,
+      },
+      {
+        month: 7,
+        total: 0,
+      },
+      {
+        month: 8,
+        total: 0,
+      },
+      {
+        month: 9,
+        total: 0,
+      },
+      {
+        month: 10,
+        total: 0,
+      },
+      {
+        month: 11,
+        total: 0,
+      },
+    ];
+    const yearNow = new Date().getFullYear();
+
+    const adoptions = await this.prisma.adoption.findMany({
+      select: {
+        createdAt: true,
+      },
+    });
+
+    adoptions.forEach((adoption) => {
+      const month = new Date(adoption.createdAt).getMonth();
+      const year = new Date(adoption.createdAt).getFullYear();
+      if (year === yearNow) {
+        stats[month].total++;
+      }
+    });
+
+    return stats;
   }
 }

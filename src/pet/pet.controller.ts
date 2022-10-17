@@ -20,6 +20,13 @@ import { Pet } from './types';
 export class PetController {
   constructor(private petService: PetService) {}
 
+  @Public()
+  @Get('stats')
+  @HttpCode(HttpStatus.OK)
+  getPetStats() {
+    return this.petService.getPetStats();
+  }
+
   @Post()
   @Roles('ADMIN')
   @HttpCode(HttpStatus.CREATED)
@@ -30,7 +37,7 @@ export class PetController {
   @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
-  getPet(
+  getPets(
     @Query('filter', ParseBoolPipe) exclude: boolean,
     @Query('search') search: string,
   ): Promise<Pet[]> {
@@ -46,8 +53,8 @@ export class PetController {
   }
 
   // update pet by id
-  @Patch(':id')
   @Roles('ADMIN')
+  @Patch(':id')
   @HttpCode(HttpStatus.OK)
   updatePet(
     @Param('id', ParseIntPipe) id: number,

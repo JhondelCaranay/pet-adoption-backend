@@ -15,6 +15,76 @@ import { deleteImage, uploadImage } from 'src/common/utils/cloudenary.util';
 export class PetService {
   constructor(private prisma: PrismaService) {}
 
+  async getPetStats() {
+    const stats = [
+      {
+        month: 0,
+        total: 0,
+      },
+      {
+        month: 1,
+        total: 0,
+      },
+      {
+        month: 2,
+        total: 0,
+      },
+      {
+        month: 3,
+        total: 0,
+      },
+      {
+        month: 4,
+        total: 0,
+      },
+      {
+        month: 5,
+        total: 0,
+      },
+      {
+        month: 6,
+        total: 0,
+      },
+      {
+        month: 7,
+        total: 0,
+      },
+      {
+        month: 8,
+        total: 0,
+      },
+      {
+        month: 9,
+        total: 0,
+      },
+      {
+        month: 10,
+        total: 0,
+      },
+      {
+        month: 11,
+        total: 0,
+      },
+    ];
+    const yearNow = new Date().getFullYear();
+
+    const pets = await this.prisma.pet.findMany({
+      select: {
+        createdAt: true,
+      },
+    });
+
+    pets.forEach((pet) => {
+      const month = new Date(pet.createdAt).getMonth();
+      const year = new Date(pet.createdAt).getFullYear();
+      if (year === yearNow) {
+        stats[month].total++;
+      }
+    });
+
+    return stats;
+  }
+
   async createPet(dto: CreatePetDto): Promise<Pet> {
     // upload image to cloudinary
     const { secure_url, public_id } = await uploadImage(dto.imageUrl);
@@ -39,7 +109,7 @@ export class PetService {
     let PetType = pet.type[0].toUpperCase();
     let PetId = pet.id < 10 ? `0${pet.id}` : pet.id;
 
-    const formatString = `uuuu-MM-dd'-${PetId}${PetType}'`;
+    const formatString = `uuuuMMdd'${PetId}${PetType}'`;
     const formattedDate = format(pet.createdAt, formatString);
 
     await this.prisma.pet.update({

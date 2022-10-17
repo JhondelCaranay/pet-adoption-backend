@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 
 import { CreateAdoptionDto, UpdateAdoptionDto } from './dto';
-import { Roles } from 'src/common/decorators';
+import { Public, Roles } from 'src/common/decorators';
 
 @Controller('adoption')
 export class AdoptionController {
@@ -29,6 +29,12 @@ export class AdoptionController {
   @Get('')
   getAllAdoptions(@Query('search') search: string) {
     return this.adoptionService.getAllAdoptions(search);
+  }
+
+  @Public()
+  @Get('stats')
+  getAdoptionStats() {
+    return this.adoptionService.getAdoptionStats();
   }
 
   @Get(':id')

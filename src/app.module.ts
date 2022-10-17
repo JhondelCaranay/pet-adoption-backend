@@ -6,8 +6,9 @@ import { AccessTokenGuard, RolesGuard } from './common/guards';
 import { PetModule } from './pet/pet.module';
 import { AdoptionModule } from './adoption/adoption.module';
 import { FeedbackModule } from './feedback/feedback.module';
+import { BlogModule } from './blog/blog.module';
 @Module({
-  imports: [PrismaModule, AuthModule, PetModule, AdoptionModule, FeedbackModule],
+  imports: [PrismaModule, AuthModule, PetModule, AdoptionModule, FeedbackModule, BlogModule],
   controllers: [],
   providers: [
     {

@@ -32,6 +32,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  userId             String?
   email              String  @unique
   hash               String
   hashedRefreshToken String?
@@ -102,7 +103,8 @@ model Adoption {
   updatedAt DateTime @updatedAt
   schedule  DateTime
 
-  status ADOPTION_STATUS @default(PENDING)
+  adoptionId String?
+  status     ADOPTION_STATUS @default(PENDING)
 
   adopter   User? @relation(fields: [adopterId], references: [id], onDelete: SetNull)
   adopterId Int?
@@ -125,4 +127,35 @@ model Feedback {
   userId Int
 
   @@map("feedbacks")
+}
+
+enum PATH {
+  HOME
+  ABOUT
+  GALLERY
+}
+
+model Blog {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title   String
+  content String  @db.LongText
+  path    PATH    @default(HOME)
+  photos  Photo[]
+
+  @@map("blogs")
+}
+
+model Photo {
+  id Int @id @default(autoincrement())
+
+  imageUrl String
+  imageId  String
+
+  Blog   Blog? @relation(fields: [blogId], references: [id])
+  blogId Int?
+
+  @@map("photos")
 }
