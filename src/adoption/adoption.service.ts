@@ -111,6 +111,10 @@ export class AdoptionService {
   async getAllAdoptions(search: string = 'ALL') {
     // get all adoptions
 
+    if(search === "") {
+      search = "ALL"
+    }
+
     const includes = Object.values(ADOPTION_STATUS);
 
     const isIncludes = includes.find((item) => item == search.toUpperCase());
@@ -189,7 +193,7 @@ export class AdoptionService {
         },
       },
     });
-
+    // console.log(adoptions)
     return adoptions;
   }
 
