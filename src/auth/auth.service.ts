@@ -133,6 +133,7 @@ export class AuthService {
   }
 
   async getUsers(search: string = '') {
+    console.log('user search')
     const users = await this.prisma.user.findMany({
       where: {
         role: ROLE.USER,

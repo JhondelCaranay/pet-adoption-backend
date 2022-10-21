@@ -114,6 +114,7 @@ export class AdoptionService {
     if(search === "") {
       search = "ALL"
     }
+    console.log('adoption search')
 
     const includes = Object.values(ADOPTION_STATUS);
 

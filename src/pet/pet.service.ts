@@ -127,6 +127,7 @@ export class PetService {
   }
 
   async getPets(exclude: boolean, search: string = ''): Promise<Pet[]> {
+    console.log('pet search')
     const pets = await this.prisma.pet.findMany({
       where: {
         status: {
