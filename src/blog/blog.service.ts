@@ -17,11 +17,6 @@ export class BlogService {
           equals: matchPath || PATH.HOME,
         },
       },
-      orderBy: [
-        {
-          createdAt: 'desc'
-        }
-      ],
       select: {
         id: true,
         title: true,
@@ -37,6 +32,7 @@ export class BlogService {
         },
       },
     });
+    console.log('blogs refetcting', blogs);
     return blogs;
   }
 
