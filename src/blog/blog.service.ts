@@ -17,6 +17,11 @@ export class BlogService {
           equals: matchPath || PATH.HOME,
         },
       },
+      orderBy: [
+        {
+          createdAt: 'desc'
+        }
+      ],
       select: {
         id: true,
         title: true,
@@ -32,7 +37,6 @@ export class BlogService {
         },
       },
     });
-
     return blogs;
   }
 
@@ -72,11 +76,9 @@ export class BlogService {
         path: dto.path.toUpperCase() as keyof typeof PATH,
       },
     });
-
     dto.photos.forEach(async (photo) => {
       // upload images to cloudinary
       const { secure_url, public_id } = await uploadImage(photo);
-
       await this.prisma.photo.create({
         data: {
           imageUrl: secure_url,
@@ -85,12 +87,12 @@ export class BlogService {
         },
       });
     });
-
     return blog;
   }
 
   async updateBlog(dto: UpdateBlogDto, id: number) {
     // check if blog exists
+
     const blog = await this.prisma.blog.findUnique({
       where: {
         id,
@@ -131,10 +133,10 @@ export class BlogService {
       });
 
       // upload new photos
+
       dto.photos.forEach(async (photo) => {
         // upload images to cloudinary
         const { secure_url, public_id } = await uploadImage(photo);
-
         await this.prisma.photo.create({
           data: {
             imageUrl: secure_url,
@@ -219,7 +221,6 @@ export class BlogService {
         id,
       },
     });
-
     return deletedBlog;
   }
 }
