@@ -161,6 +161,7 @@ export class AdoptionService {
         id: true,
         schedule: true,
         status: true,
+        adopteeId: true,
         adopter: {
           select: {
             id: true,
