@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -51,7 +52,7 @@ export class BlogController {
 
   // delete blog
   @Roles('ADMIN')
-  @Patch(':id')
+  @Delete(':id')
   @HttpCode(HttpStatus.CREATED)
   deleteBlog(@Param('id', ParseIntPipe) id: number) {
     return this.blogService.deleteBlog(id);
