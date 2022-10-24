@@ -83,7 +83,7 @@ export class FeedbackService {
 
   getAllPinnedFeedbacks(): Promise<Feedback[] | any> {
     return this.prisma.feedback.findMany({
-      take: 3,
+      take: 12,
       where: {
         pin: true,
       },

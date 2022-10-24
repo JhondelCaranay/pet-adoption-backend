@@ -84,6 +84,9 @@ export class AuthService {
     const yearNow = new Date().getFullYear();
     // get all users
     const users = await this.prisma.user.findMany({
+      where: {
+        role: 'USER'
+      },
       select: {
         createdAt: true,
       },
@@ -167,6 +170,7 @@ export class AuthService {
   }
 
   async getUsers(search: string = '') {
+    console.log('user search')
     const users = await this.prisma.user.findMany({
       where: {
         role: ROLE.USER,
