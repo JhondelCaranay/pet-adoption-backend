@@ -4,6 +4,7 @@ import {
   ConfirmResetCodeDto,
   ForgotPasswordDto,
   UpdatePasswordDto,
+  UpdateUserDto,
 } from './dto';
 import { PrismaService } from './../prisma/prisma.service';
 import {
@@ -127,6 +128,42 @@ export class AuthService {
     });
 
     return user;
+  }
+
+  async updateMyInfo(userId: number, dto: UpdateUserDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // update user
+    const updatedUser = await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        profile: {
+          update: {
+            fist_name: dto.fist_name || undefined,
+            last_name: dto.last_name || undefined,
+            contact: dto.contact || undefined,
+            address: dto.address || undefined,
+          },
+        },
+      },
+      include: {
+        profile: true,
+      },
+    });
+    console.log(updatedUser);
+    return {
+      id: updatedUser.id,
+    };
   }
 
   async getUsers(search: string = '') {
@@ -260,12 +297,19 @@ export class AuthService {
   }
 
   async signin(dto: AuthDto): Promise<Tokens> {
+    // if dto.role is user
+
     // find user
     const user = await this.prisma.user.findUnique({
       where: {
         email: dto.email,
       },
     });
+    console.log(user);
+    console.log(dto.role);
+    if (dto.role.toUpperCase() !== user.role) {
+      throw new ForbiddenException('You are not allowed to login here');
+    }
 
     // check if user not exist
     if (!user) {

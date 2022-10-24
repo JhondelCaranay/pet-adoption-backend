@@ -5,6 +5,7 @@ import {
   ConfirmResetCodeDto,
   ForgotPasswordDto,
   UpdatePasswordDto,
+  UpdateUserDto,
 } from './dto';
 import { AuthService } from './auth.service';
 import {
@@ -17,6 +18,7 @@ import {
   Get,
   Param,
   Query,
+  Patch,
 } from '@nestjs/common';
 import {
   GetCurrentUser,
@@ -101,6 +103,12 @@ export class AuthController {
   @Get('me')
   async getMe(@GetCurrentUserID() userId: number) {
     return await this.authService.getMe(userId);
+  }
+
+  @Patch('me/update')
+  updateMyInfo(@GetCurrentUserID() userId: number, @Body() dto: UpdateUserDto) {
+    console.log({ userId });
+    return this.authService.updateMyInfo(userId, dto);
   }
 
   @Get('users/stats')
