@@ -5,7 +5,6 @@ import { AppModule } from './app.module';
 import * as bodyParser from 'body-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
   // add api prefix to every route
   app.setGlobalPrefix('api');
   // enable cors
