@@ -14,7 +14,6 @@ import { BlogModule } from './blog/blog.module';
     {
       provide: APP_GUARD,
       useClass: AccessTokenGuard, // athentication guard for all routes
-
       // this will make AccessTokenGuard run for all routes without the need to add @UseGuards(AccessTokenGuard) in each route
       // this will make all routes require authentication, unless we add @Public() decorator in the route
     },
