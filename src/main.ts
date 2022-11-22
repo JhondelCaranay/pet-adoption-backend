@@ -31,6 +31,6 @@ async function bootstrap() {
 
   // i just update this to separate a port
   // 3000 is already using by react
-  await app.listen(process.env.PORT || 3001);
+  await app.listen(parseInt(process.env.PORT) || 3001);
 }
 bootstrap();
