@@ -5,10 +5,13 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { ADOPTION_STATUS, PET_STATUS } from '@prisma/client';
 import { sendSmsMessage } from 'src/common/utils/vonage.util';
+import * as nodemailer from 'nodemailer';
 import { format } from 'date-fns';
+
 @Injectable()
 export class AdoptionService {
   constructor(private prisma: PrismaService, private petService: PetService) {}
@@ -112,7 +115,6 @@ export class AdoptionService {
     if (search === '') {
       search = 'ALL';
     }
-    console.log('adoption search');
 
     const includes = Object.values(ADOPTION_STATUS);
 
@@ -326,6 +328,7 @@ export class AdoptionService {
           readableDate +
           '.',
       );
+      await this.sendToSMTP(adoption.adopter.email, readableDate);
     }
 
     // update pet status if adoption is rejected
@@ -430,5 +433,34 @@ export class AdoptionService {
     });
 
     return stats;
+  }
+
+  async sendToSMTP(email: string, readableDate: string) {
+    // node mailer
+    let transporter = await nodemailer.createTransport({
+      service: 'gmail',
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: process.env.GMAIL_EMAIL,
+        pass: process.env.GMAIL_PASSWORD,
+      },
+    });
+    //CLIENT_APP
+    let mailOptions = {
+      from: `"<${process.env.GMAIL_EMAIL}>`, // sender address
+      to: `${email}`, // ["@gmail.com","@gmail.com"] list of receivers
+      subject: 'Approve Application', // Subject line
+      text: 'Approve Application', // plain text body
+      html: `<div><b>Your application for adoption has been approved. You are scheduled to meet the pet on - ${readableDate}</b></div>`, // html body
+    };
+    // send mail with defined transport object
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+        throw new InternalServerErrorException('Something went wrong');
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
   }
 }
