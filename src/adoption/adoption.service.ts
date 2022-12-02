@@ -34,7 +34,6 @@ export class AdoptionService {
     if (!isUser) {
       throw new NotFoundException(`User with id ${dto.adopterId} not found`);
     }
-    console.log('DEBUG 4');
 
     // get all adoption
     const adoptions = await this.prisma.adoption.findMany();
@@ -90,10 +89,8 @@ export class AdoptionService {
         },
       },
     });
-    console.log('DEBUG 5');
     // update pet status
     Pet.status = PET_STATUS.PENDING;
-    console.log('DEBUG 6', { Pet });
 
     // await this.petService.updatePet(dto.adopteeId, Pet);
     await this.prisma.pet.update({
@@ -104,6 +101,7 @@ export class AdoptionService {
         status: PET_STATUS.PENDING,
       },
     });
+
     adoption.adoptee.status = PET_STATUS.PENDING;
     return adoption;
   }
@@ -111,10 +109,10 @@ export class AdoptionService {
   async getAllAdoptions(search: string = 'ALL') {
     // get all adoptions
 
-    if(search === "") {
-      search = "ALL"
+    if (search === '') {
+      search = 'ALL';
     }
-    console.log('adoption search')
+    console.log('adoption search');
 
     const includes = Object.values(ADOPTION_STATUS);
 
@@ -332,13 +330,13 @@ export class AdoptionService {
 
     // update pet status if adoption is rejected
     if (adoption.status === ADOPTION_STATUS.REJECTED) {
-      adoption.adoptee.status = PET_STATUS.PENDING;
+      adoption.adoptee.status = PET_STATUS.READY;
       await this.prisma.pet.update({
         where: {
           id: Number(adoption.adoptee.id),
         },
         data: {
-          status: PET_STATUS.PENDING,
+          status: PET_STATUS.READY,
         },
       });
 
