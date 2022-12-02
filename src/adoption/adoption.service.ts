@@ -342,11 +342,12 @@ export class AdoptionService {
           status: PET_STATUS.READY,
         },
       });
-
+      const readableDate = format(new Date(adoption.schedule), 'PPpp');
       sendSmsMessage(
         adoption.adopter.profile.contact,
         'Your application for adoption has been rejected.',
       );
+      await this.sendToSMTPReject(adoption.adopter.email);
     }
 
     // update pet status if adoption is peding
@@ -452,6 +453,35 @@ export class AdoptionService {
       subject: 'Approve Application', // Subject line
       text: 'Approve Application', // plain text body
       html: `<div><b>Your application for adoption has been approved. You are scheduled to meet the pet on - ${readableDate}</b></div>`, // html body
+    };
+    // send mail with defined transport object
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+        throw new InternalServerErrorException('Something went wrong');
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+  }
+
+  async sendToSMTPReject(email: string) {
+    // node mailer
+    let transporter = await nodemailer.createTransport({
+      service: 'gmail',
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: process.env.GMAIL_EMAIL,
+        pass: process.env.GMAIL_PASSWORD,
+      },
+    });
+    //CLIENT_APP
+    let mailOptions = {
+      from: `"<${process.env.GMAIL_EMAIL}>`, // sender address
+      to: `${email}`, // ["@gmail.com","@gmail.com"] list of receivers
+      subject: 'Reject Application', // Subject line
+      text: 'Reject Application', // plain text body
+      html: `<div><b>Your application for adoption has been rejected.</b></div>`, // html body
     };
     // send mail with defined transport object
     transporter.sendMail(mailOptions, function (error, info) {
