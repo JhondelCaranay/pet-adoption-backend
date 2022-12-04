@@ -28,22 +28,22 @@ async function main() {
     },
   });
 
-  const user = await prisma.user.create({
-    data: {
-      email: 'petadoptionadminuser@gmail.com',
-      hash: hash,
-      role: ROLE.USER,
-      profile: {
-        create: {
-          fist_name: faker.name.firstName(),
-          last_name: faker.name.lastName(),
-          contact: faker.phone.phoneNumber(),
-          address: faker.address.streetAddress(),
-          imageUrl: faker.image.avatar(),
-        },
-      },
-    },
-  });
+  // const user = await prisma.user.create({
+  //   data: {
+  //     email: 'petadoptionadminuser@gmail.com',
+  //     hash: hash,
+  //     role: ROLE.USER,
+  //     profile: {
+  //       create: {
+  //         fist_name: faker.name.firstName(),
+  //         last_name: faker.name.lastName(),
+  //         contact: faker.phone.phoneNumber(),
+  //         address: faker.address.streetAddress(),
+  //         imageUrl: faker.image.avatar(),
+  //       },
+  //     },
+  //   },
+  // });
 
   console.log(`Seeding data successfully!`);
 }
