@@ -162,7 +162,7 @@ export class PetService {
           },
           {
             age: {
-              equals: parseInt(search),
+              equals: parseInt(search) ? parseInt(search) : undefined,
             },
           },
         ],
