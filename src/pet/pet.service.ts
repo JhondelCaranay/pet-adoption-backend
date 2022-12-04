@@ -93,9 +93,9 @@ export class PetService {
       data: {
         name: dto.name,
         breed: dto.breed,
-        condition: dto.condition,
+        condition: dto.condition || undefined,
         type: dto.type,
-        status: dto.status as PET_STATUS,
+        status: (dto.status as PET_STATUS) || PET_STATUS.READY,
         age: dto.age,
         gender: dto.gender,
         traits: dto.traits,
@@ -103,6 +103,8 @@ export class PetService {
         healthNotes: dto.healthNotes,
         imageUrl: secure_url,
         imageId: public_id,
+        animal_history: dto.animal_history,
+        medical_history: dto.medical_history,
       },
     });
 
@@ -150,6 +152,17 @@ export class PetService {
             type: {
               contains: search,
               mode: 'insensitive',
+            },
+          },
+          {
+            gender: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            age: {
+              equals: parseInt(search),
             },
           },
         ],
@@ -207,6 +220,8 @@ export class PetService {
         healthNotes: dto.healthNotes || undefined,
         imageUrl: dto.imageUrl ? imageUrl : undefined,
         imageId: dto.imageUrl ? imageId : undefined,
+        animal_history: dto.animal_history || undefined,
+        medical_history: dto.medical_history || undefined,
       },
     });
 

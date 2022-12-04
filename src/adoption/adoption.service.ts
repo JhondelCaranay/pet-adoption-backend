@@ -34,6 +34,7 @@ export class AdoptionService {
         id: Number(dto.adopterId),
       },
     });
+
     if (!isUser) {
       throw new NotFoundException(`User with id ${dto.adopterId} not found`);
     }
@@ -106,6 +107,7 @@ export class AdoptionService {
     });
 
     adoption.adoptee.status = PET_STATUS.PENDING;
+
     return adoption;
   }
 
@@ -306,28 +308,23 @@ export class AdoptionService {
     });
 
     // get pet by id
-    const Pet = await this.petService.getPetById(adoption.adoptee.id);
+    await this.petService.getPetById(adoption.adoptee.id); // check if pet exists , if not throw error 404
 
     // update pet status if adoption is approved
     if (adoption.status === ADOPTION_STATUS.APPROVED) {
-      adoption.adoptee.status = PET_STATUS.ADOPTED;
+      adoption.adoptee.status = PET_STATUS.READY;
       await this.prisma.pet.update({
         where: {
           id: Number(adoption.adoptee.id),
         },
         data: {
-          status: PET_STATUS.ADOPTED,
+          status: PET_STATUS.READY,
         },
       });
 
       // date fns format 'dddd, mmmm dS, yyyy, h:MM:ss TT'
       const readableDate = format(new Date(adoption.schedule), 'PPpp');
-      sendSmsMessage(
-        adoption.adopter.profile.contact,
-        'Your application for adoption has been approved. You are scheduled to meet the pet on ' +
-          readableDate +
-          '.',
-      );
+
       await this.sendToSMTP(adoption.adopter.email, readableDate);
     }
 
@@ -342,27 +339,47 @@ export class AdoptionService {
           status: PET_STATUS.READY,
         },
       });
-      const readableDate = format(new Date(adoption.schedule), 'PPpp');
-      sendSmsMessage(
-        adoption.adopter.profile.contact,
-        'Your application for adoption has been rejected.',
-      );
       await this.sendToSMTPReject(adoption.adopter.email);
     }
 
     // update pet status if adoption is peding
     if (adoption.status === ADOPTION_STATUS.PENDING) {
-      adoption.adoptee.status = PET_STATUS.PENDING;
+      adoption.adoptee.status = PET_STATUS.READY;
       await this.prisma.pet.update({
         where: {
           id: Number(adoption.adoptee.id),
         },
         data: {
-          status: PET_STATUS.PENDING,
+          status: PET_STATUS.READY,
         },
       });
     }
 
+    // update pet status if adoption is peding
+    if (adoption.status === ADOPTION_STATUS.APPROVED_INTERVIEW) {
+      adoption.adoptee.status = PET_STATUS.ADOPTED;
+      await this.prisma.pet.update({
+        where: {
+          id: Number(adoption.adoptee.id),
+        },
+        data: {
+          status: PET_STATUS.ADOPTED,
+        },
+      });
+    }
+
+    await this.prisma.user.update({
+      where: {
+        id: Number(adoption.adopter.id),
+      },
+      data: {
+        pet: {
+          connect: {
+            id: Number(adoption.adoptee.id),
+          },
+        },
+      },
+    });
     return adoption;
   }
 

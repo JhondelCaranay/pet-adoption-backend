@@ -16,7 +16,7 @@ export class UpdateAdoptionDto {
 
   @IsOptional()
   @IsEnum(ADOPTION_STATUS, {
-    message: 'Status must be PENDING, APPROVED or REJECTED',
+    message: 'Status must be PENDING, APPROVED,APPROVED_INTERVIEW  or REJECTED',
   })
   @IsNotEmpty()
   @IsString()

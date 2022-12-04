@@ -29,6 +29,16 @@ export class UpdatePetDto {
   @IsOptional()
   condition: number;
 
+  @IsOptional()
+  @IsNotEmpty({ message: 'animal_history is required' })
+  @IsString({ message: 'animal_history must be a string' })
+  animal_history: string;
+
+  @IsOptional()
+  @IsNotEmpty({ message: 'medical_history is required' })
+  @IsString({ message: 'medical_history must be a string' })
+  medical_history: string;
+
   @IsNotEmpty()
   @IsString()
   @IsOptional()
