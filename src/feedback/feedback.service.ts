@@ -16,6 +16,7 @@ export class FeedbackService {
       data: {
         rate: dto.rate,
         message: dto.message,
+        pin: true,
         user: {
           connect: {
             id: userId,
@@ -66,16 +67,15 @@ export class FeedbackService {
             email: true,
             id: true,
             createdAt: true,
-            profile: true
-          }
-        }
+            profile: true,
+          },
+        },
       },
       orderBy: [
         {
-          rate: 'desc'
-        }
-      ]
-        
+          rate: 'desc',
+        },
+      ],
     });
 
     return feedbacks;
@@ -99,22 +99,22 @@ export class FeedbackService {
             email: true,
             id: true,
             createdAt: true,
-            profile: true
-          }
-        }
+            profile: true,
+          },
+        },
       },
       orderBy: [
         {
-          rate: 'desc'
-        }
+          rate: 'desc',
+        },
       ],
     });
   }
-  
+
   deleteFeedback(id: number): Promise<Feedback> {
     return this.prisma.feedback.delete({
       where: {
-        id
+        id,
       },
     });
   }
