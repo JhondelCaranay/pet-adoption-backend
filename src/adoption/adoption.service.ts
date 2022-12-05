@@ -93,18 +93,18 @@ export class AdoptionService {
         },
       },
     });
-    // update pet status
-    Pet.status = PET_STATUS.PENDING;
+    // // update pet status
+    // Pet.status = PET_STATUS.PENDING;
 
-    // await this.petService.updatePet(dto.adopteeId, Pet);
-    await this.prisma.pet.update({
-      where: {
-        id: Number(dto.adopteeId),
-      },
-      data: {
-        status: PET_STATUS.PENDING,
-      },
-    });
+    // // await this.petService.updatePet(dto.adopteeId, Pet);
+    // await this.prisma.pet.update({
+    //   where: {
+    //     id: Number(dto.adopteeId),
+    //   },
+    //   data: {
+    //     status: PET_STATUS.PENDING,
+    //   },
+    // });
 
     adoption.adoptee.status = PET_STATUS.PENDING;
 
@@ -310,15 +310,28 @@ export class AdoptionService {
     // get pet by id
     await this.petService.getPetById(adoption.adoptee.id); // check if pet exists , if not throw error 404
 
+    // update pet status if adoption is peding
+    // if (adoption.status === ADOPTION_STATUS.PENDING) {
+    //   adoption.adoptee.status = PET_STATUS.READY;
+    //   await this.prisma.pet.update({
+    //     where: {
+    //       id: Number(adoption.adoptee.id),
+    //     },
+    //     data: {
+    //       status: PET_STATUS.READY,
+    //     },
+    //   });
+    // }
+
     // update pet status if adoption is approved
     if (adoption.status === ADOPTION_STATUS.APPROVED) {
-      adoption.adoptee.status = PET_STATUS.READY;
+      adoption.adoptee.status = PET_STATUS.PENDING;
       await this.prisma.pet.update({
         where: {
           id: Number(adoption.adoptee.id),
         },
         data: {
-          status: PET_STATUS.READY,
+          status: PET_STATUS.PENDING,
         },
       });
 
@@ -340,19 +353,6 @@ export class AdoptionService {
         },
       });
       await this.sendToSMTPReject(adoption.adopter.email);
-    }
-
-    // update pet status if adoption is peding
-    if (adoption.status === ADOPTION_STATUS.PENDING) {
-      adoption.adoptee.status = PET_STATUS.READY;
-      await this.prisma.pet.update({
-        where: {
-          id: Number(adoption.adoptee.id),
-        },
-        data: {
-          status: PET_STATUS.READY,
-        },
-      });
     }
 
     // update pet status if adoption is peding
